@@ -44,7 +44,7 @@ final class ReadingTests: XCTestCase {
         let zh = try XCTUnwrap(lychee.first { $0.entry.edition == "zh" && $0.entry.pos == "noun" }?.entry)
         XCTAssertEqual(zh.detail.ipa["uk"], "/ˈlaɪ̯t͡ʃiː/")
         XCTAssertEqual(zh.detail.ipa["us"], "/ˈlitʃiː/")
-        let word = try Lexicon.lookupWord(.standalone("daylight"))
+        let word = try Lexicon.lookupWord(.standalone("Aberdeen"))
         XCTAssertTrue(word.senses.isEmpty)
         XCTAssertFalse(try XCTUnwrap(word.referenceIPA["us"]).isEmpty)
         XCTAssertFalse(try XCTUnwrap(word.referenceIPA["uk"]).isEmpty)
@@ -111,6 +111,24 @@ final class ReadingTests: XCTestCase {
         XCTAssertNil(read.speechHint(for: nil, region: "us", useDisplayedIPA: true))
         let past = try XCTUnwrap(read.senses.first { $0.entry.detail.ipa["uk"] == "/ɹɛd/" }?.entry)
         XCTAssertEqual(read.speechHint(for: past, region: "uk", useDisplayedIPA: true), "ɹɛd")
+    }
+    func testExpandedDictionaryAndStandaloneInflections() throws {
+        XCTAssertGreaterThan(try XCTUnwrap(Lexicon.bundledHeadwordCount), 10_000)
+        let zookeeper = try Lexicon.lookup(.standalone("zookeeper"))
+        XCTAssertTrue(zookeeper.contains { $0.entry.edition == "zh" && $0.sense.gloss == "動物飼養員" })
+        for headword in ["daylight", "ecosystem", "robotics"] {
+            XCTAssertFalse(try Lexicon.lookup(.standalone(headword)).isEmpty, headword)
+        }
+
+        let token = WordToken.standalone("Telescoped")
+        XCTAssertEqual(token.surface, "Telescoped")
+        XCTAssertEqual(token.lemma, "telescope")
+        XCTAssertEqual(token.pos, "verb")
+        let choice = try XCTUnwrap(Lexicon.lookup(token).first)
+        XCTAssertEqual(choice.entry.pos, "verb")
+        XCTAssertEqual(choice.entry.sourceURL.absoluteString, "https://zh.wiktionary.org/wiki/telescope")
+        XCTAssertEqual(WordToken.standalone("saw").lemma, "saw")  // Also the past of see.
+        XCTAssertEqual(WordToken.standalone("axed").lemma, "axed")  // Both ax and axe occur.
     }
     func testRealTokenizerAndLemmaOffsets() throws {
         let text = "🌿 The birds were singing. A beautiful fern grew."
@@ -180,10 +198,14 @@ final class ReadingTests: XCTestCase {
         XCTAssertTrue(try inbox.files().isEmpty)
         let item = try Library.store("A river runs through the valley.", origin: "输入", in: db)
         item.translated = "一条河流穿过山谷。"
-        db.insert(SavedWord(token: .standalone("river"), gloss: "河流"))
+        // A saved sense from the 0.2.x dictionary, independent of SQLite row IDs.
+        db.insert(SavedWord(token: .standalone("hospital"), gloss: "醫院"))
         try Library.commit(db)
         let next = ModelContext(container)
         XCTAssertEqual(try next.fetch(FetchDescriptor<Reading>()).first?.translated, item.translated)
-        XCTAssertEqual(try next.fetchCount(FetchDescriptor<SavedWord>()), 1)
+        let saved = try next.fetch(FetchDescriptor<SavedWord>())
+        XCTAssertEqual(saved.count, 1)
+        let favorite = try XCTUnwrap(saved.first)
+        XCTAssertTrue(try Lexicon.lookup(favorite.token).contains { $0.sense.gloss == favorite.gloss })
     }
 }

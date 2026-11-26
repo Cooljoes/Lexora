@@ -54,6 +54,19 @@ final class ReaderUITests: XCTestCase {
         app.buttons["toggleFavorite"].tap()
         app.buttons["完成"].tap()
     }
+    func testWordbookLooksUpAnExpandedInflectedWord() {
+        let app = launch()
+        tapSection("生词本", app)
+        let search = app.textFields["wordSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 8))
+        search.tap()
+        search.typeText("telescoped")
+        app.buttons["dictionaryLookup"].tap()
+        XCTAssertTrue(app.staticTexts["telescope"].waitForExistence(timeout: 8), app.debugDescription)
+        let form = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "查询词形 telescoped")).firstMatch
+        XCTAssertTrue(form.exists)
+        XCTAssertTrue(app.staticTexts["像望遠鏡般伸縮"].exists)
+    }
     func testComposeReadAndReopenHistory() {
         let app = launch()
         app.buttons["输入原文"].tap()
@@ -192,7 +205,7 @@ final class ReaderUITests: XCTestCase {
         tapSection("生词本", app)
         let search = app.textFields["wordSearch"]
         search.tap()
-        search.typeText("daylight")
+        search.typeText("Aberdeen")
         app.buttons["dictionaryLookup"].tap()
         let uk = app.descendants(matching: .any).matching(identifier: "ipaSource-en-GB").firstMatch
         let us = app.descendants(matching: .any).matching(identifier: "ipaSource-en-US").firstMatch

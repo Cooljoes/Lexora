@@ -2,7 +2,7 @@
 
 在 Lexora 里读一段英文，轻点原文中的单词，就能对照原句选释义、听英美发音，并把生词留到下次复习。应用支持英译简中，也可以离线查词。
 
-[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.2.2（构建 5）](https://github.com/Cooljoes/Lexora/releases/tag/v0.2.2)
+[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.3.0（构建 6）](https://github.com/Cooljoes/Lexora/releases/tag/v0.3.0)
 
 ## 从原文到词条
 
@@ -28,7 +28,7 @@
    ```
 
 2. 选择 `Lexora` 方案和 iPhone 或 iPad 模拟器，按 **⌘R**。应用支持 iOS / iPadOS 26.0 及以上，开发环境为 Xcode 27.2、Swift 6.4.2 和 iOS SDK 27.2。
-3. 打开「生词本」，搜索 `hospital`、`record` 或 `endless`。公开版内置 **151 个有释义的词头**，也可以用 `daylight` 试查只收录读音的词。释义保留中英文 Wiktionary 的原文。[词典来源与重建方法](docs/dictionary.md)
+3. 打开「生词本」查找 `algorithm`、`ecosystem` 或 `daylight`。公开版内置 **71,105 个有释义的英文词头**，其中 59,697 个有中文版 Wiktionary 条目。如果输入的词形没有独立词条，且词典只收录了一个对应原形，应用会打开该原形。例如输入 `telescoped`，可以查到 `telescope`。[词典来源与重建方法](docs/dictionary.md)
 
 **装到自己的 iPhone 或 iPad**　给 `Lexora` 和 `LexoraShare` 两个 target 选择同一个开发团队，将工程级 `LEXORA_BUNDLE_ID` 改为自己的唯一标识，确认两个 target 使用相同的 App Group。连接设备，在 Xcode 里选中它，按 **⌘R**。完整的系统翻译流程需在支持的真机上验证。
 
@@ -50,7 +50,7 @@ python3 Tools/fetch_voice_pack.py
 | --- | --- |
 | [App](App) · [Core](Core) | SwiftUI 界面、NaturalLanguage 分析、Apple 翻译、SQLite 查词、SwiftData 存储和 Core ML 发音 |
 | [Shared](Shared) · [ShareExtension](ShareExtension) | 主应用与系统分享扩展之间的文字收件箱 |
-| [Resources](Resources) · [Tools](Tools) | 示例词典、发音资料、隐私清单、词典重建与语音包安装脚本 |
+| [Resources](Resources) · [Tools](Tools) | 离线词典、发音资料、隐私清单、词典重建与语音包安装脚本 |
 | [Tests](Tests) · [UITests](UITests) | 核心逻辑、存储、语音合成与界面测试 |
 
 在 Xcode 中按 **⌘U** 运行测试。真实 Kokoro 合成测试需要先安装语音包。调整工程结构后，可用 XcodeGen 从 `project.yml` 重新生成工程。

@@ -38,8 +38,9 @@ struct WordSheet: View {
                         Text(token.lemma).font(.custom("Baskerville-SemiBold", size: 41, relativeTo: .largeTitle))
                             .fixedSize(horizontal: false, vertical: true).foregroundStyle(Ink.text)
                         let pos = token.pos.isEmpty ? chosen?.entry.pos : token.pos
+                        let formLabel = token.sentence.isEmpty ? "查询词形 " : "文中词形 "
                         let subtitle = [pos.map(TextAnalysis.partName),
-                                        token.lemma == token.surface.lowercased() ? nil : "文中词形 " + token.surface]
+                                        token.lemma == token.surface.lowercased() ? nil : formLabel + token.surface]
                             .compactMap { $0 }.joined(separator: "  ·  ")
                         if !subtitle.isEmpty {
                             Text(subtitle).font(.subheadline).foregroundStyle(Ink.muted)
