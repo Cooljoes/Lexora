@@ -1,9 +1,81 @@
 import XCTest
 import SwiftData
 import Translation
+import AVFAudio
 @testable import Lexora
 
 final class ReadingTests: XCTestCase {
+    func testEnglishVoicePreferenceRespectsAccentQualityAndExplicitChoice() {
+        let basic = PronunciationVoice(identifier: "basic", language: "en-US", quality: .default, traits: [])
+        let enhanced = PronunciationVoice(identifier: "enhanced", language: "en_US", quality: .enhanced, traits: [])
+        let premium = PronunciationVoice(identifier: "premium", language: "en-US", quality: .premium, traits: [])
+        let uk = PronunciationVoice(identifier: "uk", language: "en-GB", quality: .premium, traits: [])
+        let novelty = PronunciationVoice(identifier: "effects", language: "en-US", quality: .premium, traits: [.isNoveltyVoice])
+        let personal = PronunciationVoice(identifier: "personal", language: "en-US", quality: .premium, traits: [.isPersonalVoice])
+        let voices = [basic, uk, enhanced, premium, personal, novelty]
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic")?.id, "premium")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", selectedIdentifier: "enhanced")?.id, "enhanced")
+        XCTAssertEqual(PronunciationVoice.best(in: [basic, enhanced, uk], language: "en-US", selectedIdentifier: "removed")?.id, "enhanced")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-GB", selectedIdentifier: "basic")?.id, "uk")
+        XCTAssertNil(PronunciationVoice.best(in: [novelty, personal, uk], language: "en-US", selectedIdentifier: "effects"))
+    }
+    func testOfflineReferencePronunciationsAndAmbiguousHeadwords() throws {
+        let lychee = try Lexicon.lookup(.standalone("lychee"))
+        let zh = try XCTUnwrap(lychee.first { $0.entry.edition == "zh" && $0.entry.pos == "noun" }?.entry)
+        XCTAssertEqual(zh.detail.ipa["uk"], "/ˈlaɪ̯t͡ʃiː/")
+        XCTAssertEqual(zh.detail.ipa["us"], "/ˈlitʃiː/")
+        let word = try Lexicon.lookupWord(.standalone("daylight"))
+        XCTAssertTrue(word.senses.isEmpty)
+        XCTAssertFalse(try XCTUnwrap(word.referenceIPA["us"]).isEmpty)
+        XCTAssertFalse(try XCTUnwrap(word.referenceIPA["uk"]).isEmpty)
+        let read = try Lexicon.lookupWord(.standalone("read"))
+        XCTAssertEqual(read.referenceIPA["us"], ["/ɹɛd/", "/ɹid/"])
+        XCTAssertEqual(read.referenceIPA["uk"], ["/ɹiːd/", "/ɹɛd/"])
+        XCTAssertTrue(try Lexicon.lookupWord(.standalone("xyzzymissingword")).referenceIPA.isEmpty)
+        XCTAssertNotNil(Bundle.main.url(forResource: "Pronunciation-Licenses", withExtension: "txt"))
+    }
+    @MainActor func testInstalledAmericanVoiceProducesAudio() async throws {
+        try await checkSpeechOutput(language: "en-US")
+    }
+    @MainActor func testInstalledBritishVoiceProducesAudio() async throws {
+        try await checkSpeechOutput(language: "en-GB")
+    }
+    @MainActor private func checkSpeechOutput(language: String) async throws {
+        let available = AVSpeechSynthesisVoice.speechVoices().map {
+            PronunciationVoice(identifier: $0.identifier, language: $0.language, quality: $0.quality, traits: $0.voiceTraits)
+        }
+        guard let chosen = PronunciationVoice.best(in: available, language: language),
+              let voice = AVSpeechSynthesisVoice(identifier: chosen.id) else {
+            throw XCTSkip("当前设备没有可测试的 \(language) 语音。")
+        }
+        let utterance = AVSpeechUtterance(string: "daylight")
+        utterance.voice = voice
+        let synthesizer = AVSpeechSynthesizer()
+        let audibleSamples = expectation(description: "系统人声输出非静音采样")
+        audibleSamples.assertForOverFulfill = false
+        synthesizer.write(utterance) { audio in
+            guard let pcm = audio as? AVAudioPCMBuffer, pcm.frameLength > 0 else { return }
+            let count = Int(pcm.frameLength)
+            if let samples = pcm.floatChannelData?[0], (0..<count).contains(where: { abs(samples[$0]) > 0.0001 }) {
+                audibleSamples.fulfill()
+            } else if let samples = pcm.int16ChannelData?[0], (0..<count).contains(where: { samples[$0] != 0 }) {
+                audibleSamples.fulfill()
+            }
+        }
+        await fulfillment(of: [audibleSamples], timeout: 30)
+        synthesizer.stopSpeaking(at: .immediate)
+    }
+    func testRecordUsesThePronunciationOfTheSelectedPartOfSpeech() throws {
+        let lookup = try Lexicon.lookupWord(.standalone("record"))
+        for (pos, stressed) in [("noun", "ˈɹɛk"), ("verb", "ˈkɔ")] {
+            let primary = try XCTUnwrap(lookup.senses.first { $0.entry.edition == "zh" && $0.entry.pos == pos }?.entry)
+            let result = try XCTUnwrap(lookup.sourcedIPA("uk", primary: primary, extra: lookup.englishSupplement(for: primary)))
+            XCTAssertTrue(result.value.contains(stressed), result.value)
+            XCTAssertEqual(result.entry.edition, "en")
+            XCTAssertEqual(result.entry.pos, pos)
+            XCTAssertTrue(try XCTUnwrap(lookup.speechHint(for: primary, region: "uk")).contains(stressed))
+        }
+    }
     func testRealTokenizerAndLemmaOffsets() throws {
         let text = "🌿 The birds were singing. A beautiful fern grew."
         let tokens = TextAnalysis.analyze(text)

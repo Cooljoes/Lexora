@@ -29,21 +29,77 @@ CREATE TABLE metadata(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 is_word = re.compile("[a-z]+(?:['-][a-z]+)*").fullmatch
 words_in = re.compile(r"[a-z]{3,}")
 parts_templates = {"af", "affix", "pre", "prefix", "suf", "suffix", "compound", "com", "confix", "circumfix", "surface analysis", "surf"}
-regional = {"uk": {"UK", "Received-Pronunciation", "British", "英國", "英国", "標準英音"},
+regional = {"uk": {"UK", "Received-Pronunciation", "British", "英國", "英国", "標準英音", "标准英音", "標準南英音"},
             "us": {"US", "General-American", "美國", "美国", "通用美式"}}
+pos_tags = {"noun": "noun", "名詞": "noun", "名词": "noun", "verb": "verb", "動詞": "verb", "动词": "verb",
+            "adjective": "adj", "形容詞": "adj", "形容词": "adj", "adverb": "adv", "副詞": "adv", "副词": "adv",
+            "助詞": "particle", "限定詞": "det", "主要爲名詞": "noun", "主要爲動詞": "verb"}
+excluded_labels = {"obsolete", "archaic", "dated", "nonstandard", "historical", "dialectal",
+                   "過時", "过时", "古代", "舊式", "旧式", "近代", "非標準", "非标准", "部份方言"}
+note_regions = {"General American": "General-American", "Received Pronunciation": "Received-Pronunciation",
+                "UK": "UK", "US": "US", "Canada": "Canada", "Australia": "Australia", "New Zealand": "New-Zealand"}
+sound_variants = {"rhotic", "non-rhotic", "strong form", "stressed form", "weak vowel merger", "weak vowel distinction",
+                  "non-merged vowel", "merged vowel", "stressed initial syllable", "unstressed initial syllable"}
+raw_regions = set.union(*regional.values()) | {
+    "加拿大", "澳大利亞", "澳洲", "新西蘭", "紐西蘭", "北英格蘭", "蘇格蘭", "愛爾蘭", "威爾士", "通用南非", "通用澳式"
+}
+neutral_raw_tags = {"en", "強讀形式", "重讀形式", "標準"}
+phonological_note = re.compile(
+    r"(?:without (?:the )?)?(?:[\w/̯ː–-]+ (?:merger|raising|split|distinction|tensing)|"
+    r"[\w/-]+-(?:flapping|dropping|coalescence|vocalization|vocalizing|tensing))"
+)
+
+def entry_pronunciations(item):
+    candidates = {}
+    for sound in item.get("sounds", []):
+        if sound.get("topics") or sound.get("form", item["word"]) != item["word"]:
+            continue
+        ipa = sound.get("ipa", "").strip()
+        pair = re.fullmatch(r"(/[^/]+/)\s+\[.+\]", ipa)
+        if pair:
+            ipa = pair.group(1)
+        if len(ipa) < 3 or (ipa[0], ipa[-1]) not in {("/", "/"), ("[", "]")}:
+            continue
+        if ipa[1] in "-…" or ipa[-2] in "-…" or "..." in ipa:
+            continue  # A source may abbreviate a variant to a prefix or suffix.
+        tags = set(sound.get("tags", []))
+        # Chinese raw labels sometimes contain both an accent and a meaning
+        # (e.g. mobile as a phone or as a sculpture). Keep scoped labels only
+        # when this importer can represent their meaning.
+        raw_tags = {t.strip() for raw in sound.get("raw_tags", []) for t in re.split(r"[,，、;；]", raw) if t.strip()}
+        if raw_tags.difference(raw_regions, pos_tags, neutral_raw_tags):
+            continue
+        tags.update(raw_tags - neutral_raw_tags)
+        note = sound.get("note", "").strip()
+        # Some English-edition records carry the actual dialect in the note.
+        # Accept named dialects and phonetic variants, but reject notes tied to
+        # a specific meaning, inflected form, historical period or phrase.
+        notes = [part.strip() for part in re.split(r"[,;]", note) if part.strip()]
+        if any(part not in note_regions and part not in pos_tags and part not in sound_variants
+               and not phonological_note.fullmatch(part) for part in notes):
+            continue
+        tags.update(note_regions[part] for part in notes if part in note_regions)
+        tags.update(part for part in notes if part in pos_tags)
+        if tags & excluded_labels or {"Early", "Modern"} <= tags:
+            continue
+        classes = {pos_tags[tag] for tag in tags if tag in pos_tags}
+        if classes and item.get("pos") not in classes:
+            continue
+        tags.difference_update(pos_tags)
+        tags.discard("en")
+        regions = [region for region, labels in regional.items() if tags & labels]
+        if not tags:
+            regions = ["general"]
+        for region in regions:
+            # Prefer an explicitly scoped part of speech and a complete phonemic transcription.
+            # Keep source order for alternatives of equal priority.
+            priority = (bool(classes), ipa.startswith("/"), not note)
+            if region not in candidates or priority > candidates[region][0]:
+                candidates[region] = (priority, ipa)
+    return {region: v[1] for region, v in candidates.items()}
 
 def entry_detail(item, edition):
-    pronunciations = {}
-    for sound in item.get("sounds", []):
-        ipa = sound.get("ipa")
-        tags = set(sound.get("tags", [])) | set(sound.get("raw_tags", []))
-        if not ipa or tags & {"obsolete", "archaic", "dated", "nonstandard"}:
-            continue
-        for region, labels in regional.items():
-            if tags & labels:
-                pronunciations.setdefault(region, ipa)
-        if not tags:
-            pronunciations.setdefault("general", ipa)
+    pronunciations = entry_pronunciations(item)
     etym = item.get("etymology_text") or "\n".join(item.get("etymology_texts", []))
     # Extraction trees can precede the human-written paragraph. Exclude tree markup.
     if etym.startswith("Etymology tree"):

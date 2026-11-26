@@ -96,7 +96,13 @@ struct WordbookView: View {
 struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var account = "正在检查 iCloud 账户…"
-    @State private var license = false
+    @State private var license: License?
+    private enum License: String, Identifiable {
+        case wiktionary = "CC-BY-SA-4.0"
+        case pronunciation = "Pronunciation-Licenses"
+        var id: Self { self }
+        var title: String { self == .wiktionary ? "CC BY-SA 4.0" : "发音词典许可" }
+    }
     var body: some View {
         NavigationStack {
             List {
@@ -109,7 +115,9 @@ struct AboutView: View {
                     Text("内置 30,798 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
                     Link("Kaikki.org 词典数据", destination: URL(string: "https://kaikki.org/dictionary/rawdata.html")!)
                     Text("Lexora 对数据作了筛选、整理与索引。地区音标只采用明确标注的记录；词根词缀仅展示来源已有的分析。")
-                    Button("查看 CC BY-SA 4.0 许可") { license = true }
+                    Button("查看维基词典许可") { license = .wiktionary }
+                    Text("英式词头读音补充自 Britfone，美式词头读音补充自 CMUdict。Lexora 将 CMUdict 的音素和重音标记转写为宽式 IPA。两部发音词典均按拼写列出读音。")
+                    Button("查看发音词典许可与来源") { license = .pronunciation }
                 }
                 Section("精读与翻译") {
                     Text("NaturalLanguage 分析词形和词性。系统缺少语言资源时，使用词典收录的词形。重点词按实词、长度和数量筛选。候选释义结合词性及原句与词典释义、例句的用词匹配排序。")
@@ -131,12 +139,12 @@ struct AboutView: View {
                 }
             }.navigationTitle("关于 Lexora").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
-            .sheet(isPresented: $license) {
+            .sheet(item: $license) { selected in
                 NavigationStack {
                     ScrollView {
-                        Text(licenseText).font(.footnote).textSelection(.enabled).padding()
-                    }.navigationTitle("CC BY-SA 4.0").navigationBarTitleDisplayMode(.inline)
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { license = false } } }
+                        Text(licenseText(for: selected)).font(.footnote).textSelection(.enabled).padding()
+                    }.navigationTitle(selected.title).navigationBarTitleDisplayMode(.inline)
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { license = nil } } }
                 }
             }
         }.task {
@@ -151,9 +159,9 @@ struct AboutView: View {
             } catch { account = "暂时无法检查 iCloud 账户" }
         }
     }
-    private var licenseText: String {
-        guard let url = Bundle.main.url(forResource: "CC-BY-SA-4.0", withExtension: "txt"),
-              let text = try? String(contentsOf: url, encoding: .utf8) else { return "https://creativecommons.org/licenses/by-sa/4.0/" }
+    private func licenseText(for license: License) -> String {
+        guard let url = Bundle.main.url(forResource: license.rawValue, withExtension: "txt"),
+              let text = try? String(contentsOf: url, encoding: .utf8) else { return "无法读取随包许可文件。" }
         return text
     }
 }

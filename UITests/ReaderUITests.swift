@@ -174,6 +174,40 @@ final class ReaderUITests: XCTestCase {
         picker.tap()
         XCTAssertTrue(app.buttons[newSelection].isSelected)
     }
+    func testPronunciationLookupOutsideTheDefinitionDictionary() {
+        let app = launch()
+        tapSection("生词本", app)
+        let search = app.textFields["wordSearch"]
+        search.tap()
+        search.typeText("daylight")
+        app.buttons["dictionaryLookup"].tap()
+        let uk = app.descendants(matching: .any).matching(identifier: "ipaSource-en-GB").firstMatch
+        let us = app.descendants(matching: .any).matching(identifier: "ipaSource-en-US").firstMatch
+        XCTAssertTrue(uk.waitForExistence(timeout: 8))
+        XCTAssertTrue(uk.label.contains("Britfone"))
+        XCTAssertTrue(us.label.contains("CMUdict"))
+        let play = app.buttons["播放美式发音"]
+        XCTAssertTrue(play.exists)
+        play.tap()
+        attach("英美发音")
+        let menu = app.buttons["选择美式声音"]
+        menu.tap()
+        let automatic = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "自动选择最高音质")).firstMatch
+        XCTAssertTrue(automatic.waitForExistence(timeout: 8), app.debugDescription)
+        let installed = app.buttons.matching(NSPredicate(format: "label MATCHES %@", ".+ · (精品|增强|基础)")).firstMatch
+        if installed.exists {
+            let name = installed.label
+            installed.tap()
+            app.buttons["完成"].tap()
+            app.buttons["dictionaryLookup"].tap()
+            let persisted = NSPredicate(format: "value == %@", name)
+            expectation(for: persisted, evaluatedWith: menu)
+            waitForExpectations(timeout: 8)
+            menu.tap()
+        }
+        automatic.tap()
+        XCTAssertTrue(app.buttons["选择英式声音"].exists)
+    }
     func testSystemCopyAndPaste() {
         let app = launch()
         app.buttons["featuredReading"].tap()

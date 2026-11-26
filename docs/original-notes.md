@@ -7,7 +7,8 @@ Lexora 是一款英译简中的原生精读应用，支持 iOS 26.0 和 iPadOS 2
 ## 使用
 
 - 在书桌点「粘贴英文」，直接阅读剪贴板中的句子或段落。也可以点「输入原文」修改后再开始。单次支持 12,000 个字符。
-- 阅读页自动分析原文。点正文里的任一英文词或下方的重点词，查看语境候选释义、单词所在原句、地区音标、构词与词源。通过「查看其他释义」切换义项，通过书签按钮收藏。发音来自系统语音合成。
+- 阅读页自动分析原文。点正文里的任一英文词或下方的重点词，查看语境候选释义、单词所在原句、地区音标、构词与词源。通过「查看其他释义」切换义项，通过书签按钮收藏。
+- 在词条的「音标与发音」中点扬声器即可听单词。每种口音旁的「⋯」可以试听并记住这台设备上喜欢的人声。自动模式按精品、增强、基础的顺序选取该口音的系统语音。在系统设置中搜索「阅读与朗读」，进入「声音」可下载更多英语人声。
 - 语言资源齐备的真机自动完成全文翻译，保留换行并保存译文。首次使用可能出现 Apple 的语言包下载确认。翻译失败时可重试，已保存的译文可离线阅读。
 - 在其他应用中选中英文纯文本，打开系统分享菜单，选择「Lexora」或「存入 Lexora」。在扩展内确认后，打开主应用即可在历史中找到原文。若分享菜单仅传入网页地址，应先选中网页里的英文。
 - 「生词本」顶部可直接查离线词典。「历史」支持搜索，左滑记录可删除。书桌右上角可查看数据来源、许可及隐私说明。
@@ -31,13 +32,17 @@ Release 配置用于完整版，真机通过私有 CloudKit 数据库同步。�
 
 ## 词典数据
 
-来源为中文及英文 Wiktionary 贡献者撰写的英文条目，由 Kaikki.org 使用 Wiktextract 提取。离线数据库沿用 CC BY-SA 4.0。作品修改包括词头筛选、结构化、义项数量上限、地区标签归类、构词模板提取和索引。保留来源语言与字形，释义可能为英文或繁体中文。每个词条提供指向原版 Wiktionary 页面的署名与查询入口，可从条目历史查看贡献者。系统翻译、系统发音与词典来源分别标注。
+释义、词源与条目音标来自中文及英文 Wiktionary 贡献者撰写的英文条目，由 Kaikki.org 使用 Wiktextract 提取。这部分数据沿用 CC BY-SA 4.0。Lexora 对词头、义项数量和构词模板作了筛选并建立索引。保留来源语言与字形，释义可能为英文或繁体中文。词条链接指向原版 Wiktionary 页面，可从条目历史查看贡献者。
+
+词条缺少对应地区音标时，应用按拼写查找英式 Britfone 或美式 CMUdict。CMUdict 的 ARPAbet 音素和重音按随工程提供的映射转写为宽式 IPA。多个读音按来源顺序保留，标为词头读音。即使释义词库没有该拼写，生词本里仍可查询其离线读音。两个发音来源的固定版本、原始文件散列、标音约定和许可全文见 Resources/Pronunciation-Licenses.txt，也可在应用的「关于与数据来源」查阅。[Britfone](https://github.com/JoseLlarena/Britfone/tree/1062be14adc96c358f2087ac5449d72130c7a6f4) · [CMUdict](https://github.com/cmusphinx/cmudict/tree/74790861f652b15e4ac49015a90074ad62a27690)
 
 | 本版覆盖 | 词头数 |
 | --- | ---: |
-| 全库 | 30,798 |
+| 有释义的词头 | 30,798 |
 | 含中文来源 | 24,690 |
-| 至少一个来源条目同时标注英式与美式 IPA | 6,614 |
+| 有释义且至少有一种来源音标的词头 | 15,128 |
+| 有释义且可查英式和美式两地音标的词头 | 10,993 |
+| 可按拼写查询到音标的条目（含只有发音的拼写） | 128,508 |
 | 有词源文本 | 18,849 |
 | 有明确构词记录 | 11,591 |
 
@@ -53,10 +58,11 @@ Release 配置用于完整版，真机通过私有 CloudKit 数据库同步。�
 
 ```shell
 python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz common.txt rebuilt.sqlite
+python3 Tools/import_pronunciations.py rebuilt.sqlite
 sqlite3 rebuilt.sqlite 'PRAGMA integrity_check'
 ```
 
-随包数据库的 SHA-256 为 `54e0beb6c6f4f43fc88a44344aec1adc8b70d85fcfece6fa8521e19f6d8efc08`。词典许可全文在 Resources/CC-BY-SA-4.0.txt。经典选读采用达尔文 1859 年初版《物种起源》第 490 页公版原文。植物封面为生成插画。[Kaikki](https://kaikki.org/dictionary/rawdata.html) · [Wiktextract](https://github.com/tatuylonen/wiktextract) · [词典许可](https://creativecommons.org/licenses/by-sa/4.0/) · [Darwin Online 原文](https://darwin-online.org.uk/Variorum/1859/1859-490-dns.html)
+随包数据库的 SHA-256 为 `fc48899e7fe9d3faa375e7cc6e9846bde0ba17d76f642169f43cbd97f24c3c0b`。Resources 中包含维基词典、Britfone 和 CMUdict 的许可全文。经典选读采用达尔文 1859 年初版《物种起源》第 490 页公版原文。植物封面为生成插画。[Kaikki](https://kaikki.org/dictionary/rawdata.html) · [Wiktextract](https://github.com/tatuylonen/wiktextract) · [词典许可](https://creativecommons.org/licenses/by-sa/4.0/) · [Darwin Online 原文](https://darwin-online.org.uk/Variorum/1859/1859-490-dns.html)
 
 ## 测试与发布
 

@@ -6,17 +6,23 @@ struct WordSheet: View {
     let token: WordToken
     var preferredGloss: String? = nil
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var context
     @Query private var saved: [SavedWord]
-    @State private var senses: [RankedSense] = []
+    @State private var lookup = WordLookup(senses: [], referenceIPA: [:])
+    private var senses: [RankedSense] { lookup.senses }
     @State private var selected: Int?
     @State private var choosingSense = false
     @State private var showingSentence = false
     @State private var loaded = false
     @State private var lookupError: String?
-    @State private var speechError: String?
     @State private var saveError: String?
-    @State private var player = WordPronunciation()
+    @AppStorage("lexora.voice.en-GB") private var britishVoiceID = ""
+    @AppStorage("lexora.voice.en-US") private var americanVoiceID = ""
+    @State private var installedVoices: [PronunciationVoice]?
+    @State private var voiceRevision = 0
+    @State private var lastPlayback: (locale: String, voice: PronunciationVoice?)?
+    @State private var requestID: UUID?
     @State private var playback: Task<Void, Never>?
     @State private var preparingVoice: String?
     var chosen: RankedSense? { senses.first { $0.id == selected } ?? senses.first }
@@ -29,8 +35,13 @@ struct WordSheet: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(token.lemma).font(.custom("Baskerville-SemiBold", size: 41, relativeTo: .largeTitle))
                             .fixedSize(horizontal: false, vertical: true).foregroundStyle(Ink.text)
-                        Text([TextAnalysis.partName(token.pos.isEmpty ? (chosen?.entry.pos ?? "") : token.pos), token.lemma == token.surface.lowercased() ? nil : "文中词形 " + token.surface].compactMap { $0 }.joined(separator: "  ·  "))
-                            .font(.subheadline).foregroundStyle(Ink.muted)
+                        let pos = token.pos.isEmpty ? chosen?.entry.pos : token.pos
+                        let subtitle = [pos.map(TextAnalysis.partName),
+                                        token.lemma == token.surface.lowercased() ? nil : "文中词形 " + token.surface]
+                            .compactMap { $0 }.joined(separator: "  ·  ")
+                        if !subtitle.isEmpty {
+                            Text(subtitle).font(.subheadline).foregroundStyle(Ink.muted)
+                        }
                     }
                     if !loaded { ProgressView("查阅离线词典…") }
                     else if let choice = chosen {
@@ -49,7 +60,7 @@ struct WordSheet: View {
                             }
                         }.padding(15).paperCard()
                         let primary = choice.entry
-                        let extra = englishSupplement(for: primary)
+                        let extra = lookup.englishSupplement(for: primary)
                         let parts = primary.detail.parts.isEmpty ? (extra ?? primary) : primary
                         let etym = primary.detail.etymology.isEmpty ? (extra ?? primary) : primary
                         pronunciation(primary: primary, extra: extra)
@@ -67,7 +78,7 @@ struct WordSheet: View {
                         if let lookupError {
                             Text(lookupError).font(.footnote).foregroundStyle(.red)
                         } else {
-                            Label("离线词库未收录此词", systemImage: "book.closed").foregroundStyle(Ink.muted)
+                            Label("离线词库未收录此词的释义", systemImage: "book.closed").foregroundStyle(Ink.muted)
                         }
                         pronunciation(primary: nil, extra: nil)
                         sentenceSection
@@ -114,16 +125,16 @@ struct WordSheet: View {
         }
         .task(id: token) {
             loaded = false
-            senses = []
+            lookup = WordLookup(senses: [], referenceIPA: [:])
             selected = nil
             showingSentence = false
             lookupError = nil
-            speechError = nil
+            stopPlayback()
             saveError = nil
             do {
-                let matches = try await Task.detached { try Lexicon.lookup(token) }.value
+                let result = try await Task.detached { try Lexicon.lookupWord(token) }.value
                 guard !Task.isCancelled else { return }
-                senses = matches
+                lookup = result
                 if let preferredGloss { selected = senses.first { $0.sense.gloss == preferredGloss }?.id }
             } catch {
                 guard !Task.isCancelled else { return }
@@ -131,18 +142,14 @@ struct WordSheet: View {
             }
             loaded = true
         }
-        .onDisappear {
-            playback?.cancel()
-            Task { await player.stop() }
+        .task(id: voiceRevision) {
+            let voices = await WordPronunciation.shared.installedVoices(refresh: true)
+            if !Task.isCancelled { installedVoices = voices }
         }
-    }
-    // Supplement a Chinese entry only when one unambiguous English entry of the
-    // same part of speech exists, with its own source link displayed beside the fields.
-    private func englishSupplement(for entry: DictionaryEntry) -> DictionaryEntry? {
-        guard entry.edition == "zh" else { return nil }
-        let english = senses.filter { $0.entry.edition == "en" && $0.entry.pos == entry.pos && $0.entry.word == entry.word }
-        guard Set(english.map { $0.entry.rowID }).count == 1 else { return nil }
-        return english.first?.entry
+        .onReceive(NotificationCenter.default.publisher(for: AVSpeechSynthesizer.availableVoicesDidChangeNotification)) { _ in voiceRevision += 1 }
+        .onChange(of: scenePhase) { _, phase in if phase == .active { voiceRevision += 1 } }
+        .onChange(of: selected) { stopPlayback() }
+        .onDisappear { stopPlayback() }
     }
     private func section(_ title: String, _ body: String) -> some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -165,24 +172,11 @@ struct WordSheet: View {
         }
     }
     private func pronunciation(primary: DictionaryEntry?, extra: DictionaryEntry?) -> some View {
-        let sources = [primary, extra].compactMap { $0 }
-        func ipa(_ key: String) -> (value: String, entry: DictionaryEntry)? {
-            for entry in sources {
-                if let value = entry.detail.ipa[key], !value.isEmpty { return (value, entry) }
-            }
-            return nil
-        }
-        let uk = ipa("uk"), us = ipa("us"), general = ipa("general")
+        let uk = lookup.sourcedIPA("uk", primary: primary, extra: extra)
+        let us = lookup.sourcedIPA("us", primary: primary, extra: extra)
+        let general = lookup.sourcedIPA("general", primary: primary, extra: extra)
         return VStack(alignment: .leading, spacing: 8) {
             SectionLine(title: "音标与发音")
-            soundRow("英式", uk?.value, "en-GB")
-            soundRow("美式", us?.value, "en-US")
-            if let uk, let us, uk.entry.rowID == us.entry.rowID {
-                Link(uk.entry.sourceName + " · 地区 IPA", destination: uk.entry.sourceURL).font(.caption)
-            } else {
-                if let uk { Link(uk.entry.sourceName + " · 英式 IPA", destination: uk.entry.sourceURL).font(.caption) }
-                if let us { Link(us.entry.sourceName + " · 美式 IPA", destination: us.entry.sourceURL).font(.caption) }
-            }
             if let general {
                 Text("未分地区  " + general.value).font(.subheadline).foregroundStyle(Ink.text)
                     .fixedSize(horizontal: false, vertical: true)
@@ -190,40 +184,118 @@ struct WordSheet: View {
                 Link(general.entry.sourceName + " · 未分地区 IPA", destination: general.entry.sourceURL)
                     .font(.caption).accessibilityIdentifier("generalIPASource")
             }
-            if let speechError { Text(speechError).font(.footnote).foregroundStyle(.red) }
+            regionalPronunciation("英式", locale: "en-GB", attested: uk,
+                                  variants: lookup.referenceIPA["uk"] ?? [], source: "Britfone",
+                                  sourceURL: URL(string: "https://github.com/JoseLlarena/Britfone/tree/1062be14adc96c358f2087ac5449d72130c7a6f4")!)
+            regionalPronunciation("美式", locale: "en-US", attested: us,
+                                  variants: lookup.referenceIPA["us"] ?? [], source: "CMUdict（转写为 IPA）",
+                                  sourceURL: URL(string: "https://github.com/cmusphinx/cmudict/tree/74790861f652b15e4ac49015a90074ad62a27690")!)
+            if loaded && lookupError == nil && uk == nil && us == nil && general == nil && lookup.referenceIPA.isEmpty {
+                Text("离线来源暂未收录此词的音标。").font(.footnote).foregroundStyle(Ink.muted)
+            }
+        }
+    }
+    @ViewBuilder private func regionalPronunciation(_ label: String, locale: String,
+                                                    attested: (value: String, entry: DictionaryEntry)?,
+                                                    variants: [String], source: String, sourceURL: URL) -> some View {
+        let transcription = attested?.value ?? (variants.isEmpty ? nil : variants.joined(separator: "、"))
+        soundRow(label, transcription, locale)
+        if let attested {
+            Link(attested.entry.sourceName + " · " + label + " IPA", destination: attested.entry.sourceURL).font(.caption)
+        } else if !variants.isEmpty {
+            Link(source + " · 词头读音", destination: sourceURL).font(.caption)
+                .accessibilityIdentifier("ipaSource-" + locale)
+            if variants.count > 1 {
+                Text("词典列出 \(variants.count) 种读音，未区分义项。").font(.caption).foregroundStyle(Ink.muted)
+            }
         }
     }
     private func soundRow(_ label: String, _ ipa: String?, _ locale: String) -> some View {
-        let region = Text(label).font(.caption.weight(.medium)).foregroundStyle(Ink.green)
-        let phonetics = Text(ipa ?? "来源未标注").font(.body).foregroundStyle(ipa == nil ? Ink.muted : Ink.text)
-        return HStack {
-            ViewThatFits(in: .horizontal) {
-                HStack { region; phonetics }.fixedSize()
-                VStack(alignment: .leading, spacing: 4) {
+        let region = Text(label).font(.subheadline.weight(.medium)).foregroundStyle(Ink.green)
+        let preference = locale == "en-GB" ? $britishVoiceID : $americanVoiceID
+        let options = installedVoices?.filter { $0.matches(language: locale) } ?? []
+        return VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                if let ipa {
+                    let phonetics = Text(ipa).font(.body).foregroundStyle(Ink.text)
+                    ViewThatFits(in: .horizontal) {
+                        HStack { region; phonetics }.fixedSize()
+                        VStack(alignment: .leading, spacing: 4) {
+                            region
+                            phonetics.fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                } else {
                     region
-                    phonetics.fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 2)
+                Menu {
+                    Picker(label + "声音", selection: Binding(
+                        get: { options.contains { $0.id == preference.wrappedValue } ? preference.wrappedValue : "" },
+                        set: { id in
+                            preference.wrappedValue = id
+                            playWord(locale: locale, selectedID: id)
+                        }
+                    )) {
+                        Text("自动选择最高音质").tag("")
+                        ForEach(options) { voice in Text(voice.displayName).tag(voice.id) }
+                    }.pickerStyle(.inline)
+                    if installedVoices == nil {
+                        Text("正在查找设备语音…")
+                    } else if options.isEmpty {
+                        Text("可在设置中搜索“阅读与朗读”，从“声音”下载英语语音。")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44)
+                }
+                .accessibilityLabel("选择" + label + "声音")
+                .accessibilityValue(options.first { $0.id == preference.wrappedValue }?.displayName ?? "自动")
+                Button {
+                    playWord(locale: locale, selectedID: preference.wrappedValue)
+                } label: {
+                    Group {
+                        if preparingVoice == locale { ProgressView().controlSize(.small) }
+                        else { Image(systemName: "speaker.wave.2") }
+                    }.frame(minWidth: 44, minHeight: 44)
+                }.accessibilityLabel("播放" + label + "发音")
+            }
+            if let lastPlayback, lastPlayback.locale == locale {
+                if let voice = lastPlayback.voice {
+                    Text(voice.displayName).font(.caption).foregroundStyle(Ink.muted)
+                    if voice.quality == .default && !options.contains(where: { $0.quality.rawValue > voice.quality.rawValue }) {
+                        Text("可在设置中搜索“阅读与朗读”，从“声音”下载更高音质的英语语音。")
+                            .font(.caption).foregroundStyle(Ink.muted)
+                    }
+                } else {
+                    Text("此设备暂无可用的" + label + "英语语音。请在设置中搜索“阅读与朗读”，从“声音”下载。")
+                        .font(.caption).foregroundStyle(Ink.muted)
                 }
             }
-            Spacer(minLength: 4)
-            Button {
-                playback?.cancel()
-                speechError = nil
-                let word = chosen?.entry.word ?? token.lemma
-                preparingVoice = locale
-                playback = Task {
-                    let available = await player.play(word, locale: locale)
-                    guard !Task.isCancelled else { return }
-                    preparingVoice = nil
-                    if !available { speechError = "此设备尚无\(label)英语语音，可在系统设置中下载。" }
-                }
-            } label: {
-                Group {
-                    if preparingVoice == locale { ProgressView().controlSize(.small) }
-                    else { Image(systemName: "speaker.wave.2") }
-                }.frame(minWidth: 44, minHeight: 44)
-            }
-                .accessibilityLabel("播放" + label + "发音")
         }
+    }
+
+    private func playWord(locale: String, selectedID: String) {
+        playback?.cancel()
+        let id = UUID()
+        requestID = id
+        let word = chosen?.entry.word ?? token.lemma
+        let hint = chosen.flatMap { lookup.speechHint(for: $0.entry, region: locale == "en-GB" ? "uk" : "us") }
+        lastPlayback = nil
+        preparingVoice = locale
+        playback = Task {
+            let voice = await WordPronunciation.shared.play(word, locale: locale, ipa: hint, selectedID: selectedID, request: id)
+            guard !Task.isCancelled, requestID == id else { return }
+            preparingVoice = nil
+            lastPlayback = (locale, voice)
+        }
+    }
+
+    private func stopPlayback() {
+        playback?.cancel()
+        if let requestID { Task { await WordPronunciation.shared.stop(request: requestID) } }
+        requestID = nil
+        preparingVoice = nil
+        lastPlayback = nil
     }
     private func toggle() {
         saveError = nil
@@ -233,22 +305,105 @@ struct WordSheet: View {
     }
 }
 
-// Voice lookup can synchronously wait for the system speech-assets service on a cold device.
-// Keep both voice discovery and synthesis off the main actor and serialize playback.
-private actor WordPronunciation {
-    private var synthesizer: AVSpeechSynthesizer?
-    func play(_ word: String, locale: String) -> Bool {
-        guard !Task.isCancelled else { return false }
-        guard let voice = AVSpeechSynthesisVoice(language: locale),
-              voice.language.caseInsensitiveCompare(locale) == .orderedSame else { return false }
-        guard !Task.isCancelled else { return false }
-        let speech = synthesizer ?? AVSpeechSynthesizer()
-        synthesizer = speech
-        speech.stopSpeaking(at: .immediate)
-        let utterance = AVSpeechUtterance(string: word)
-        utterance.voice = voice
-        speech.speak(utterance)
-        return true
+struct PronunciationVoice: Identifiable, Sendable {
+    let identifier: String
+    let language: String
+    let quality: AVSpeechSynthesisVoiceQuality
+    let traits: AVSpeechSynthesisVoice.Traits
+    var name: String = ""
+
+    var id: String { identifier }
+    var displayName: String {
+        let grade: String
+        switch quality {
+        case .premium: grade = "精品"
+        case .enhanced: grade = "增强"
+        case .default: grade = "基础"
+        @unknown default: grade = "系统语音"
+        }
+        return name + " · " + grade
     }
-    func stop() { synthesizer?.stopSpeaking(at: .immediate) }
+
+    func matches(language requested: String) -> Bool {
+        language.replacingOccurrences(of: "_", with: "-").caseInsensitiveCompare(requested) == .orderedSame &&
+            traits.intersection([.isNoveltyVoice, .isPersonalVoice]).isEmpty
+    }
+
+    static func best(in voices: [Self], language: String, preferredIdentifier: String? = nil,
+                     selectedIdentifier: String? = nil) -> Self? {
+        let eligible = voices.filter { $0.matches(language: language) }
+        if let chosen = eligible.first(where: { $0.id == selectedIdentifier }) { return chosen }
+        guard let bestQuality = eligible.map(\.quality.rawValue).max() else { return nil }
+        let best = eligible.filter { $0.quality.rawValue == bestQuality }
+        return best.first { $0.id == preferredIdentifier } ?? best.min { $0.id < $1.id }
+    }
+}
+
+// The speech-asset service can block on a cold device. Resolve voices and play words
+// off the main actor; the request ID prevents a dismissed sheet from stopping a newer word.
+private actor WordPronunciation {
+    static let shared = WordPronunciation()
+    private var synthesizer: AVSpeechSynthesizer?
+    private var inventory: [PronunciationVoice]?
+    private var systemPreferences: [String: String] = [:]
+    private var activeRequest: UUID?
+
+    func installedVoices(refresh: Bool) -> [PronunciationVoice] {
+        if !refresh, let inventory { return inventory }
+        let locales = ["en-GB", "en-US"]
+        var voices = AVSpeechSynthesisVoice.speechVoices()
+        systemPreferences.removeAll()
+        for locale in locales {
+            if let voice = AVSpeechSynthesisVoice(language: locale) {
+                systemPreferences[locale] = voice.identifier
+                if !voices.contains(where: { $0.identifier == voice.identifier }) { voices.append(voice) }
+            }
+        }
+        let available = voices.filter { $0.language.lowercased().hasPrefix("en") }.map {
+            PronunciationVoice(identifier: $0.identifier, language: $0.language, quality: $0.quality,
+                               traits: $0.voiceTraits, name: $0.name)
+        }.filter { voice in locales.contains { voice.matches(language: $0) } }
+        .sorted {
+            if $0.quality != $1.quality { return $0.quality.rawValue > $1.quality.rawValue }
+            return $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+        inventory = available
+        return available
+    }
+
+    func play(_ word: String, locale: String, ipa: String?, selectedID: String, request: UUID) -> PronunciationVoice? {
+        guard !Task.isCancelled else { return nil }
+        synthesizer?.stopSpeaking(at: .immediate)
+        activeRequest = request
+        var available = installedVoices(refresh: false)
+        // A voice can be removed in Settings between building the menu and playing.
+        while let choice = PronunciationVoice.best(in: available, language: locale,
+                                                    preferredIdentifier: systemPreferences[locale], selectedIdentifier: selectedID) {
+            guard !Task.isCancelled else { return nil }
+            if let voice = AVSpeechSynthesisVoice(identifier: choice.id) {
+                guard !Task.isCancelled else { return nil }
+                let speech = synthesizer ?? AVSpeechSynthesizer()
+                synthesizer = speech
+                let utterance: AVSpeechUtterance
+                if let ipa {
+                    let text = NSAttributedString(string: word, attributes: [NSAttributedString.Key(AVSpeechSynthesisIPANotationAttribute): ipa])
+                    utterance = AVSpeechUtterance(attributedString: text)
+                } else {
+                    utterance = AVSpeechUtterance(string: word)
+                }
+                utterance.voice = voice
+                speech.speak(utterance)
+                return choice
+            }
+            available.removeAll { $0.id == choice.id }
+            inventory = available
+        }
+        return nil
+    }
+
+    func stop(request: UUID) {
+        guard request == activeRequest else { return }
+        synthesizer?.stopSpeaking(at: .immediate)
+        activeRequest = nil
+    }
 }
