@@ -1,0 +1,756 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02C0B477FFFE6032C379DC14 /* DeskShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32683FCF4C279D92A5E3513 /* DeskShell.swift */; };
+		04E47D629B4E6896CA6D4D46 /* WordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392B5F7C6CB626D7285E2F00 /* WordSheet.swift */; };
+		0524E9BAE1F3FACB1F4F8F5A /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ACD2985DAB54587B1080BD6 /* libsqlite3.tbd */; };
+		0FB8BE019CCFBD9BC68B5B23 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC157C0FB34F72BD09035DF4 /* HomeView.swift */; };
+		1F54889259C16A3F82CF3A65 /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0110A965B26BC534A7A13E4A /* Dictionary.swift */; };
+		218DF58CEEEC548F655CBDE8 /* Design.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575FA6362F4EE5D7AC7EE4BC /* Design.swift */; };
+		34DB06ED0329B07539ED709A /* Analysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662BAB5AD04952B860AF310F /* Analysis.swift */; };
+		35C2A0A01555735908830245 /* ReadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F0381F513C37D0D3F1E1D1 /* ReadingTests.swift */; };
+		57A585BD4C0F70F94F5740CB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */; };
+		79B6F8B69951D8A596C9BA03 /* PassageInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8015C9EB9318C5070635C27C /* PassageInput.swift */; };
+		83145D7B473823FB4AC7BE2A /* LexoraShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		972F7E64E52A49BD505FCBA0 /* Dictionary.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */; };
+		A3D2A6656C0BD385D4C4C1F1 /* TranslationChunks.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6189243BE34E482C2A296 /* TranslationChunks.swift */; };
+		BD4FBF14AB1196F71F4366C5 /* ShareController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068E65C8385574F162F4AC3C /* ShareController.swift */; };
+		BDA084305D17E0FC0B486171 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5598BB56DA026F48EE70034A /* ReaderView.swift */; };
+		C50030573D68D894CB10C44F /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12550FE2DF4854047F47F3F /* Library.swift */; };
+		CC8F31F3767A384BBACC869B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */; };
+		CF6CE1430682CDD26E86ABBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41060C8363ECE3E5BBBA6F06 /* Assets.xcassets */; };
+		D00FEA34A11178AE3042F659 /* PassageInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8015C9EB9318C5070635C27C /* PassageInput.swift */; };
+		D40ABA45C920ABB6CA4B9C1D /* ReaderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6005C764B0AA3FF60A3E151C /* ReaderUITests.swift */; };
+		EB359C6EB0138C431889805E /* InputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A45F6F12EAB3793F9A858E78 /* InputTests.swift */; };
+		F0C1B9856951AC522EC27D0C /* CC-BY-SA-4.0.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */; };
+		F17C4B8780F678E8682F58B4 /* LexoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28FFA82888B3E08BCF662888 /* LexoraApp.swift */; };
+		F1F4C95A67DE40ACD6FC9859 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A904795620F6E7DAEF0054 /* LibraryViews.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		77A9BFAF366058C380FF92EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34F3293DEE75349C30E444FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8FEB552CE9947E45C0AFA09;
+			remoteInfo = Lexora;
+		};
+		8467975072301E5F8FF15715 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34F3293DEE75349C30E444FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8FEB552CE9947E45C0AFA09;
+			remoteInfo = Lexora;
+		};
+		D1F54E1C0CD7E9A915305202 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34F3293DEE75349C30E444FB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EB96ECCB276FCB17558F1768;
+			remoteInfo = LexoraShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8A80B7A70CF5F46C92FEE05C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				83145D7B473823FB4AC7BE2A /* LexoraShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0110A965B26BC534A7A13E4A /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
+		068E65C8385574F162F4AC3C /* ShareController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareController.swift; sourceTree = "<group>"; };
+		1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "CC-BY-SA-4.0.txt"; sourceTree = "<group>"; };
+		28FFA82888B3E08BCF662888 /* LexoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraApp.swift; sourceTree = "<group>"; };
+		2ACD2985DAB54587B1080BD6 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		392B5F7C6CB626D7285E2F00 /* WordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordSheet.swift; sourceTree = "<group>"; };
+		3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		41060C8363ECE3E5BBBA6F06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5598BB56DA026F48EE70034A /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
+		575FA6362F4EE5D7AC7EE4BC /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
+		6005C764B0AA3FF60A3E151C /* ReaderUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderUITests.swift; sourceTree = "<group>"; };
+		662BAB5AD04952B860AF310F /* Analysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analysis.swift; sourceTree = "<group>"; };
+		76F0381F513C37D0D3F1E1D1 /* ReadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTests.swift; sourceTree = "<group>"; };
+		8015C9EB9318C5070635C27C /* PassageInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassageInput.swift; sourceTree = "<group>"; };
+		A45F6F12EAB3793F9A858E78 /* InputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTests.swift; sourceTree = "<group>"; };
+		A5ED7A48A04EB511F4E38DFE /* LexoraTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LexoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC157C0FB34F72BD09035DF4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B32683FCF4C279D92A5E3513 /* DeskShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeskShell.swift; sourceTree = "<group>"; };
+		B4A904795620F6E7DAEF0054 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
+		C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C0F6189243BE34E482C2A296 /* TranslationChunks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationChunks.swift; sourceTree = "<group>"; };
+		D12550FE2DF4854047F47F3F /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
+		D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LexoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LexoraShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E332CAF109759722E7C265B8 /* Lexora.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = Dictionary.sqlite; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4750352C3EE9F09F138FF2BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0524E9BAE1F3FACB1F4F8F5A /* libsqlite3.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1B519AF82E1DFC8626F539A9 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */,
+				068E65C8385574F162F4AC3C /* ShareController.swift */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		2388C9A0E181EB39F47EF689 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				41060C8363ECE3E5BBBA6F06 /* Assets.xcassets */,
+				1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */,
+				FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */,
+				C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		2C5626A55044F45E8C459B8F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8015C9EB9318C5070635C27C /* PassageInput.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		4EC0809D025F237E47D3A799 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				662BAB5AD04952B860AF310F /* Analysis.swift */,
+				0110A965B26BC534A7A13E4A /* Dictionary.swift */,
+				D12550FE2DF4854047F47F3F /* Library.swift */,
+				C0F6189243BE34E482C2A296 /* TranslationChunks.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		71F589063375C4A0F6B4A3F4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2ACD2985DAB54587B1080BD6 /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9AB6074013CACD4B0440AE62 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A45F6F12EAB3793F9A858E78 /* InputTests.swift */,
+				76F0381F513C37D0D3F1E1D1 /* ReadingTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		A42F4304935280875B25A279 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				6005C764B0AA3FF60A3E151C /* ReaderUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		D5D2E3F96A81F3CB248EA609 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				575FA6362F4EE5D7AC7EE4BC /* Design.swift */,
+				B32683FCF4C279D92A5E3513 /* DeskShell.swift */,
+				AC157C0FB34F72BD09035DF4 /* HomeView.swift */,
+				28FFA82888B3E08BCF662888 /* LexoraApp.swift */,
+				B4A904795620F6E7DAEF0054 /* LibraryViews.swift */,
+				5598BB56DA026F48EE70034A /* ReaderView.swift */,
+				392B5F7C6CB626D7285E2F00 /* WordSheet.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DF9B1A5BB7F357BA051634FC = {
+			isa = PBXGroup;
+			children = (
+				D5D2E3F96A81F3CB248EA609 /* App */,
+				4EC0809D025F237E47D3A799 /* Core */,
+				2388C9A0E181EB39F47EF689 /* Resources */,
+				2C5626A55044F45E8C459B8F /* Shared */,
+				1B519AF82E1DFC8626F539A9 /* ShareExtension */,
+				9AB6074013CACD4B0440AE62 /* Tests */,
+				A42F4304935280875B25A279 /* UITests */,
+				71F589063375C4A0F6B4A3F4 /* Frameworks */,
+				F759B1366D216CDEB735EC02 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F759B1366D216CDEB735EC02 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E332CAF109759722E7C265B8 /* Lexora.app */,
+				D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */,
+				A5ED7A48A04EB511F4E38DFE /* LexoraTests.xctest */,
+				D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C585247D3B5FE3379925D510 /* LexoraUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 14E02914C2E9CC8B184975A2 /* Build configuration list for PBXNativeTarget "LexoraUITests" */;
+			buildPhases = (
+				6A8E9BE83A677E52FDE9A776 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F574CBD5A1CABD34B4494360 /* PBXTargetDependency */,
+			);
+			name = LexoraUITests;
+			packageProductDependencies = (
+			);
+			productName = LexoraUITests;
+			productReference = D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		D8FEB552CE9947E45C0AFA09 /* Lexora */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7D9D6F0AD711C663217FD74 /* Build configuration list for PBXNativeTarget "Lexora" */;
+			buildPhases = (
+				E9A02996133056E269904765 /* Sources */,
+				B35554005F894130328974C4 /* Resources */,
+				4750352C3EE9F09F138FF2BB /* Frameworks */,
+				8A80B7A70CF5F46C92FEE05C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A779C893283DCE18F803DEA /* PBXTargetDependency */,
+			);
+			name = Lexora;
+			packageProductDependencies = (
+			);
+			productName = Lexora;
+			productReference = E332CAF109759722E7C265B8 /* Lexora.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DFE5CE25EEC8EEFEA4A1765B /* LexoraTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D34EF4EC6E043C033419D8FD /* Build configuration list for PBXNativeTarget "LexoraTests" */;
+			buildPhases = (
+				C18C2615C4ED2BC6CA327EBB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6AB150CB58F0577ABF629E04 /* PBXTargetDependency */,
+			);
+			name = LexoraTests;
+			packageProductDependencies = (
+			);
+			productName = LexoraTests;
+			productReference = A5ED7A48A04EB511F4E38DFE /* LexoraTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EB96ECCB276FCB17558F1768 /* LexoraShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7640FC00F4C5FFCC3A2C8F66 /* Build configuration list for PBXNativeTarget "LexoraShare" */;
+			buildPhases = (
+				1BBC7F1378F886F18475004F /* Sources */,
+				4E9F948C3C4A99EAF3CB358E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LexoraShare;
+			packageProductDependencies = (
+			);
+			productName = LexoraShare;
+			productReference = D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		34F3293DEE75349C30E444FB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					C585247D3B5FE3379925D510 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = D8FEB552CE9947E45C0AFA09;
+					};
+					D8FEB552CE9947E45C0AFA09 = {
+						ProvisioningStyle = Automatic;
+					};
+					DFE5CE25EEC8EEFEA4A1765B = {
+						ProvisioningStyle = Automatic;
+					};
+					EB96ECCB276FCB17558F1768 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 3CAAE92D536CCEDFB3991FB9 /* Build configuration list for PBXProject "Lexora" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = DF9B1A5BB7F357BA051634FC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D8FEB552CE9947E45C0AFA09 /* Lexora */,
+				EB96ECCB276FCB17558F1768 /* LexoraShare */,
+				DFE5CE25EEC8EEFEA4A1765B /* LexoraTests */,
+				C585247D3B5FE3379925D510 /* LexoraUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4E9F948C3C4A99EAF3CB358E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC8F31F3767A384BBACC869B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B35554005F894130328974C4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF6CE1430682CDD26E86ABBD /* Assets.xcassets in Resources */,
+				F0C1B9856951AC522EC27D0C /* CC-BY-SA-4.0.txt in Resources */,
+				972F7E64E52A49BD505FCBA0 /* Dictionary.sqlite in Resources */,
+				57A585BD4C0F70F94F5740CB /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1BBC7F1378F886F18475004F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79B6F8B69951D8A596C9BA03 /* PassageInput.swift in Sources */,
+				BD4FBF14AB1196F71F4366C5 /* ShareController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6A8E9BE83A677E52FDE9A776 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D40ABA45C920ABB6CA4B9C1D /* ReaderUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C18C2615C4ED2BC6CA327EBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB359C6EB0138C431889805E /* InputTests.swift in Sources */,
+				35C2A0A01555735908830245 /* ReadingTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9A02996133056E269904765 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34DB06ED0329B07539ED709A /* Analysis.swift in Sources */,
+				218DF58CEEEC548F655CBDE8 /* Design.swift in Sources */,
+				02C0B477FFFE6032C379DC14 /* DeskShell.swift in Sources */,
+				1F54889259C16A3F82CF3A65 /* Dictionary.swift in Sources */,
+				0FB8BE019CCFBD9BC68B5B23 /* HomeView.swift in Sources */,
+				F17C4B8780F678E8682F58B4 /* LexoraApp.swift in Sources */,
+				C50030573D68D894CB10C44F /* Library.swift in Sources */,
+				F1F4C95A67DE40ACD6FC9859 /* LibraryViews.swift in Sources */,
+				D00FEA34A11178AE3042F659 /* PassageInput.swift in Sources */,
+				BDA084305D17E0FC0B486171 /* ReaderView.swift in Sources */,
+				A3D2A6656C0BD385D4C4C1F1 /* TranslationChunks.swift in Sources */,
+				04E47D629B4E6896CA6D4D46 /* WordSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A779C893283DCE18F803DEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EB96ECCB276FCB17558F1768 /* LexoraShare */;
+			targetProxy = D1F54E1C0CD7E9A915305202 /* PBXContainerItemProxy */;
+		};
+		6AB150CB58F0577ABF629E04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8FEB552CE9947E45C0AFA09 /* Lexora */;
+			targetProxy = 77A9BFAF366058C380FF92EC /* PBXContainerItemProxy */;
+		};
+		F574CBD5A1CABD34B4494360 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8FEB552CE9947E45C0AFA09 /* Lexora */;
+			targetProxy = 8467975072301E5F8FF15715 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		04BFACDEDC718FAE4C2874B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = studio.lexora.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lexora.app/Lexora";
+			};
+			name = Debug;
+		};
+		17251FD375D200697575289D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Lexora.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(LEXORA_BUNDLE_ID)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3B77E9904E7D1FC7FE28A5C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = studio.lexora.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Lexora;
+			};
+			name = Release;
+		};
+		4BA405E1FEAE840FEB2789BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/Share.entitlements;
+				INFOPLIST_FILE = "Config/Share-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(LEXORA_BUNDLE_ID).share";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4D79907616482B72F2A5227A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Lexora.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "Config/App-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(LEXORA_BUNDLE_ID)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8D49A03C3A106DA07B02C90B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = studio.lexora.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Lexora;
+			};
+			name = Debug;
+		};
+		9AEF2FCC13DC1289DC22CA42 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
+				LEXORA_BUNDLE_ID = studio.lexora.reader;
+				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A20016BEBEB0D3E1EC80A2A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = studio.lexora.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lexora.app/Lexora";
+			};
+			name = Release;
+		};
+		C80A86D79F3E79F36FE9A944 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
+				LEXORA_BUNDLE_ID = studio.lexora.reader;
+				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DE5E903B6CED0F770496A8B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/Share.entitlements;
+				INFOPLIST_FILE = "Config/Share-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(LEXORA_BUNDLE_ID).share";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		14E02914C2E9CC8B184975A2 /* Build configuration list for PBXNativeTarget "LexoraUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D49A03C3A106DA07B02C90B /* Debug */,
+				3B77E9904E7D1FC7FE28A5C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CAAE92D536CCEDFB3991FB9 /* Build configuration list for PBXProject "Lexora" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AEF2FCC13DC1289DC22CA42 /* Debug */,
+				C80A86D79F3E79F36FE9A944 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7640FC00F4C5FFCC3A2C8F66 /* Build configuration list for PBXNativeTarget "LexoraShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE5E903B6CED0F770496A8B2 /* Debug */,
+				4BA405E1FEAE840FEB2789BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C7D9D6F0AD711C663217FD74 /* Build configuration list for PBXNativeTarget "Lexora" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17251FD375D200697575289D /* Debug */,
+				4D79907616482B72F2A5227A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D34EF4EC6E043C033419D8FD /* Build configuration list for PBXNativeTarget "LexoraTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04BFACDEDC718FAE4C2874B8 /* Debug */,
+				A20016BEBEB0D3E1EC80A2A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 34F3293DEE75349C30E444FB /* Project object */;
+}

@@ -1,0 +1,13 @@
+.DS_Store
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+*.xcresult
+*.xcarchive
+*.p8
+*.p12
+*.mobileprovision
+__pycache__/
+KokoroVoicePack/*
+!KokoroVoicePack/*.txt
