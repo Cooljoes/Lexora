@@ -11,10 +11,10 @@
 | [英文版](https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz) | `4d03b6cba283744756c57ff661c2c6cbfe34fcf8ff513a966576cf7d97e91a99` |
 | [中文版](https://kaikki.org/dictionary/downloads/zh/zh-extract.jsonl.gz) | `30f175aa641b204c43755e942a6e97d38cf5e93d7815ce1e2475e68c068b82c0` |
 
-从仓库根目录运行以下命令，目标使用新的文件名。最后一行应输出 `ok`。
+将两个压缩包按下载时的文件名放在仓库根目录，从该目录运行以下命令。输出数据库须使用新的文件名。最后一行应输出 `ok`。
 
 ```sh
-python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz Tools/starter-headwords.txt rebuilt.sqlite
+python3 Tools/build_dictionary.py kaikki.org-dictionary-English.jsonl.gz zh-extract.jsonl.gz Tools/starter-headwords.txt rebuilt.sqlite
 python3 Tools/import_pronunciations.py rebuilt.sqlite --headwords-only --extra-word daylight
 sqlite3 rebuilt.sqlite 'PRAGMA integrity_check'
 ```
