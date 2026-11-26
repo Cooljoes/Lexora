@@ -11,6 +11,7 @@ struct WordSheet: View {
     @State private var senses: [RankedSense] = []
     @State private var selected: Int?
     @State private var choosingSense = false
+    @State private var showingSentence = false
     @State private var loaded = false
     @State private var lookupError: String?
     @State private var speechError: String?
@@ -30,11 +31,6 @@ struct WordSheet: View {
                             .fixedSize(horizontal: false, vertical: true).foregroundStyle(Ink.text)
                         Text([TextAnalysis.partName(token.pos.isEmpty ? (chosen?.entry.pos ?? "") : token.pos), token.lemma == token.surface.lowercased() ? nil : "文中词形 " + token.surface].compactMap { $0 }.joined(separator: "  ·  "))
                             .font(.subheadline).foregroundStyle(Ink.muted)
-                    }
-                    if !token.sentence.isEmpty {
-                        Text(token.sentence).font(.system(.body, design: .serif).italic()).lineSpacing(3)
-                            .foregroundStyle(Ink.muted).padding(.leading, 12)
-                            .overlay(alignment: .leading) { Rectangle().fill(Ink.green).frame(width: 2) }
                     }
                     if !loaded { ProgressView("查阅离线词典…") }
                     else if let choice = chosen {
@@ -57,6 +53,7 @@ struct WordSheet: View {
                         let parts = primary.detail.parts.isEmpty ? (extra ?? primary) : primary
                         let etym = primary.detail.etymology.isEmpty ? (extra ?? primary) : primary
                         pronunciation(primary: primary, extra: extra)
+                        sentenceSection
                         Divider()
                         section("词根与词缀", parts.detail.parts.isEmpty ? "此来源未提供明确的构词拆分。" : parts.detail.parts.joined(separator: "\n"))
                         if !parts.detail.parts.isEmpty {
@@ -73,6 +70,7 @@ struct WordSheet: View {
                             Label("离线词库未收录此词", systemImage: "book.closed").foregroundStyle(Ink.muted)
                         }
                         pronunciation(primary: nil, extra: nil)
+                        sentenceSection
                     }
                     if let saveError { Text(saveError).font(.footnote).foregroundStyle(.red) }
                 }.padding(22).frame(maxWidth: 650, alignment: .leading).frame(maxWidth: .infinity)
@@ -118,6 +116,7 @@ struct WordSheet: View {
             loaded = false
             senses = []
             selected = nil
+            showingSentence = false
             lookupError = nil
             speechError = nil
             saveError = nil
@@ -149,6 +148,20 @@ struct WordSheet: View {
         VStack(alignment: .leading, spacing: 7) {
             Text(title).font(.headline)
             Text(body).font(.subheadline).lineSpacing(4).foregroundStyle(Ink.muted).textSelection(.enabled)
+        }
+    }
+    @ViewBuilder private var sentenceSection: some View {
+        if !token.sentence.isEmpty {
+            DisclosureGroup(isExpanded: $showingSentence) {
+                Text(token.sentence)
+                    .font(.system(.body, design: .serif).italic()).lineSpacing(3)
+                    .foregroundStyle(Ink.text).textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 6)
+            } label: {
+                Text("文中原句").font(.headline).foregroundStyle(Ink.text)
+            }
+            .padding(15).paperCard()
         }
     }
     private func pronunciation(primary: DictionaryEntry?, extra: DictionaryEntry?) -> some View {

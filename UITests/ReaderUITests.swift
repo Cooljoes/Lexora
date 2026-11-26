@@ -75,6 +75,12 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(recent.waitForExistence(timeout: 8), app.debugDescription)
         recent.tap()
         XCTAssertTrue(app.staticTexts["英文原文"].waitForExistence(timeout: 8))
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            tapSection("书桌", app)
+            app.buttons["全部"].tap()
+            XCTAssertTrue(app.navigationBars["阅读历史"].waitForExistence(timeout: 6), app.debugDescription)
+            XCTAssertTrue(recent.isHittable)
+        }
     }
     func testClassicSelection() {
         let app = launch()
@@ -111,7 +117,19 @@ final class ReaderUITests: XCTestCase {
         let lemma = String(last.identifier.dropFirst("focus-".count))
         last.tap()
         XCTAssertTrue(app.staticTexts[lemma].firstMatch.waitForExistence(timeout: 8), app.debugDescription)
+        let definition = app.staticTexts["语境候选释义"]
+        XCTAssertTrue(definition.waitForExistence(timeout: 6))
+        XCTAssertTrue(definition.isHittable, "大字号词条打开后应直接看到释义")
         attach("大字号词条")
+        let sentence = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "文中原句")).firstMatch
+        let detail = app.scrollViews.containing(.staticText, identifier: "语境候选释义").firstMatch
+        for _ in 0..<12 {
+            if sentence.isHittable { break }
+            detail.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(sentence.isHittable)
+        sentence.tap()
+        XCTAssertTrue(detail.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'There is grandeur'")).firstMatch.exists)
     }
     func testHistorySearchWithNoMatches() {
         let app = launch()
