@@ -2,7 +2,7 @@
 
 在 Lexora 里读一段英文，轻点原文中的单词，就能对照原句选释义、听英美发音，并把生词留到下次复习。应用支持英译简中，也可以离线查词。
 
-[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.2.1（构建 4）](https://github.com/Cooljoes/Lexora/releases/tag/v0.2.1)
+[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.2.2（构建 5）](https://github.com/Cooljoes/Lexora/releases/tag/v0.2.2)
 
 ## 从原文到词条
 
