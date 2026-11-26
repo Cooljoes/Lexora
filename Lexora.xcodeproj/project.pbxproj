@@ -22,6 +22,7 @@
 		A3D2A6656C0BD385D4C4C1F1 /* TranslationChunks.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6189243BE34E482C2A296 /* TranslationChunks.swift */; };
 		BD4FBF14AB1196F71F4366C5 /* ShareController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 068E65C8385574F162F4AC3C /* ShareController.swift */; };
 		BDA084305D17E0FC0B486171 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5598BB56DA026F48EE70034A /* ReaderView.swift */; };
+		BFC69B8226B94583A85BBF41 /* Pronunciation-Licenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = 058AD883D73740ECBA189EF1 /* Pronunciation-Licenses.txt */; };
 		C50030573D68D894CB10C44F /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12550FE2DF4854047F47F3F /* Library.swift */; };
 		CC8F31F3767A384BBACC869B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */; };
 		CF6CE1430682CDD26E86ABBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41060C8363ECE3E5BBBA6F06 /* Assets.xcassets */; };
@@ -29,7 +30,6 @@
 		D40ABA45C920ABB6CA4B9C1D /* ReaderUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6005C764B0AA3FF60A3E151C /* ReaderUITests.swift */; };
 		EB359C6EB0138C431889805E /* InputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A45F6F12EAB3793F9A858E78 /* InputTests.swift */; };
 		F0C1B9856951AC522EC27D0C /* CC-BY-SA-4.0.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */; };
-		BFC69B8226B94583A85BBF41 /* Pronunciation-Licenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = 058AD883D73740ECBA189EF1 /* Pronunciation-Licenses.txt */; };
 		F17C4B8780F678E8682F58B4 /* LexoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28FFA82888B3E08BCF662888 /* LexoraApp.swift */; };
 		F1F4C95A67DE40ACD6FC9859 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A904795620F6E7DAEF0054 /* LibraryViews.swift */; };
 /* End PBXBuildFile section */
@@ -74,9 +74,9 @@
 
 /* Begin PBXFileReference section */
 		0110A965B26BC534A7A13E4A /* Dictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
+		058AD883D73740ECBA189EF1 /* Pronunciation-Licenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pronunciation-Licenses.txt"; sourceTree = "<group>"; };
 		068E65C8385574F162F4AC3C /* ShareController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareController.swift; sourceTree = "<group>"; };
 		1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "CC-BY-SA-4.0.txt"; sourceTree = "<group>"; };
-		058AD883D73740ECBA189EF1 /* Pronunciation-Licenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pronunciation-Licenses.txt"; sourceTree = "<group>"; };
 		28FFA82888B3E08BCF662888 /* LexoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraApp.swift; sourceTree = "<group>"; };
 		2ACD2985DAB54587B1080BD6 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		392B5F7C6CB626D7285E2F00 /* WordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordSheet.swift; sourceTree = "<group>"; };
@@ -89,14 +89,14 @@
 		76F0381F513C37D0D3F1E1D1 /* ReadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTests.swift; sourceTree = "<group>"; };
 		8015C9EB9318C5070635C27C /* PassageInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassageInput.swift; sourceTree = "<group>"; };
 		A45F6F12EAB3793F9A858E78 /* InputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTests.swift; sourceTree = "<group>"; };
-		A5ED7A48A04EB511F4E38DFE /* LexoraTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LexoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5ED7A48A04EB511F4E38DFE /* LexoraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LexoraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC157C0FB34F72BD09035DF4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		B32683FCF4C279D92A5E3513 /* DeskShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeskShell.swift; sourceTree = "<group>"; };
 		B4A904795620F6E7DAEF0054 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
 		C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C0F6189243BE34E482C2A296 /* TranslationChunks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationChunks.swift; sourceTree = "<group>"; };
 		D12550FE2DF4854047F47F3F /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
-		D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LexoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LexoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LexoraShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E332CAF109759722E7C265B8 /* Lexora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = Dictionary.sqlite; sourceTree = "<group>"; };
@@ -304,7 +304,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					C585247D3B5FE3379925D510 = {
 						ProvisioningStyle = Automatic;
@@ -570,10 +570,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -592,12 +593,13 @@
 				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
 				LEXORA_BUNDLE_ID = studio.lexora.reader;
 				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -658,10 +660,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -674,11 +677,12 @@
 				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
 				LEXORA_BUNDLE_ID = studio.lexora.reader;
 				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.1.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";

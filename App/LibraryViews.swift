@@ -108,8 +108,11 @@ struct AboutView: View {
             List {
                 Section {
                     Brand()
-                    Text("英语精读 · 版本 " + (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""))
-                        .font(.subheadline).foregroundStyle(Ink.muted)
+                    if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+                       let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+                        Text("英语精读 · 版本 \(version)（构建 \(build)）")
+                            .font(.subheadline).foregroundStyle(Ink.muted)
+                    }
                 }
                 Section("离线词典") {
                     Text("内置 30,798 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
