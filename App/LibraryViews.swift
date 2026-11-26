@@ -98,9 +98,15 @@ struct AboutView: View {
                     Text("NaturalLanguage 分析词形和词性。系统缺少语言资源时，使用词典收录的词形。重点词按实词、长度和数量筛选。候选释义结合词性及原句与词典释义、例句的用词匹配排序。")
                     Text("全文翻译由设备上的 Apple 翻译完成。首次使用可能需要下载英语或简体中文语言包。音频使用设备已安装的系统语音。")
                 }
-                Section("iCloud 与隐私") {
-                    Label(account, systemImage: "icloud")
-                    Text("真机使用你自己的 iCloud 私有数据库同步阅读原文、译文、生词和例句。剪贴板仅在你点按粘贴时读取。应用不含广告、统计 SDK 或自建服务器。")
+                Section("资料库与隐私") {
+                    if Library.cloudIdentifier != nil {
+                        Label(account, systemImage: "icloud")
+                        Text("阅读原文、译文、生词和例句通过你自己的 iCloud 私有数据库同步。")
+                    } else {
+                        Label("本机资料库", systemImage: "internaldrive")
+                        Text("阅读原文、译文、生词和例句保存在当前设备上。")
+                    }
+                    Text("剪贴板仅在你点按粘贴时读取。应用不含广告、统计 SDK 或自建服务器。")
                 }
                 Section("经典选读") {
                     Link("达尔文《物种起源》1859 年初版，第 490 页", destination: Featured.source)
@@ -117,10 +123,7 @@ struct AboutView: View {
                 }
             }
         }.task {
-            #if targetEnvironment(simulator)
-            account = "模拟器使用本地资料库"
-            #else
-            guard let name = Bundle.main.object(forInfoDictionaryKey: "LexoraCloudContainer") as? String else { account = "iCloud 配置不可用"; return }
+            guard let name = Library.cloudIdentifier else { return }
             do {
                 switch try await CKContainer(identifier: name).accountStatus() {
                 case .available: account = "iCloud 账户可用"
@@ -129,7 +132,6 @@ struct AboutView: View {
                 default: account = "iCloud 账户状态暂时不可用"
                 }
             } catch { account = "暂时无法检查 iCloud 账户" }
-            #endif
         }
     }
     private var licenseText: String {

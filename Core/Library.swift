@@ -40,16 +40,15 @@ import SwiftData
 
 enum Library {
     static var schema: Schema { Schema([Reading.self, SavedWord.self]) }
-    static func container() throws -> ModelContainer {
-        let cloud: ModelConfiguration.CloudKitDatabase
+    static var cloudIdentifier: String? {
         #if targetEnvironment(simulator)
-        cloud = .none
+        return nil
         #else
-        guard let identifier = Bundle.main.object(forInfoDictionaryKey: "LexoraCloudContainer") as? String else {
-            throw CocoaError(.coderValueNotFound)
-        }
-        cloud = .private(identifier)
+        return Bundle.main.object(forInfoDictionaryKey: "LexoraCloudContainer") as? String
         #endif
+    }
+    static func container() throws -> ModelContainer {
+        let cloud: ModelConfiguration.CloudKitDatabase = cloudIdentifier.map { .private($0) } ?? .none
         let spec = schema
         let config = ModelConfiguration("ReadingLibrary", schema: spec, groupContainer: .none, cloudKitDatabase: cloud)
         return try ModelContainer(for: spec, configurations: [config])

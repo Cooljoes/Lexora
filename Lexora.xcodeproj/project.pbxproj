@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -78,7 +78,7 @@
 		28FFA82888B3E08BCF662888 /* LexoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraApp.swift; sourceTree = "<group>"; };
 		2ACD2985DAB54587B1080BD6 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		392B5F7C6CB626D7285E2F00 /* WordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordSheet.swift; sourceTree = "<group>"; };
-		3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3DA6070E88CA8B9E0297D947 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		41060C8363ECE3E5BBBA6F06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5598BB56DA026F48EE70034A /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		575FA6362F4EE5D7AC7EE4BC /* Design.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
@@ -91,12 +91,12 @@
 		AC157C0FB34F72BD09035DF4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		B32683FCF4C279D92A5E3513 /* DeskShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeskShell.swift; sourceTree = "<group>"; };
 		B4A904795620F6E7DAEF0054 /* LibraryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViews.swift; sourceTree = "<group>"; };
-		C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C07CE4FC775A620ADD76AE54 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C0F6189243BE34E482C2A296 /* TranslationChunks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationChunks.swift; sourceTree = "<group>"; };
 		D12550FE2DF4854047F47F3F /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
 		D233A6DCDB573C2855902BD7 /* LexoraUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LexoraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LexoraShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		E332CAF109759722E7C265B8 /* Lexora.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LexoraShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E332CAF109759722E7C265B8 /* Lexora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = Dictionary.sqlite; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -328,7 +328,6 @@
 			);
 			mainGroup = DF9B1A5BB7F357BA051634FC;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -450,9 +449,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Config/Lexora.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Config/Share.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				INFOPLIST_FILE = "Config/App-Info.plist";
+				INFOPLIST_FILE = "Config/App-Local-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

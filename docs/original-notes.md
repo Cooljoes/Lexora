@@ -1,4 +1,4 @@
-> 早期本机工程说明。本标签供查看旧源码和原始开发记录。
+> 原始开发包说明。覆盖数字、验收结果和完整资源描述对应当时的本机交付版本。
 
 # Lexora
 
@@ -23,9 +23,11 @@ Lexora 是一款英译简中的原生精读应用，支持 iOS 26.0 和 iPadOS 2
 | Tests、UITests | 在真实框架及随包数据库上运行的 XCTest 与 XCUITest |
 | Tools | 可复现的 SQLite 词库生成器 |
 
-已生成的 .xcodeproj 可直接使用。只有更改工程结构时才需要使用 XcodeGen 2.44.1 运行 `xcodegen generate`。准备自己的签名时，在两个 target 选择相同的开发团队。配置正式的 LEXORA_BUNDLE_ID、LEXORA_APP_GROUP 和 LEXORA_CLOUD_CONTAINER，并创建相应标识和描述文件。主应用使用 iCloud/CloudKit、Push Notifications、Background Modes 的 Remote notifications 和 App Groups，扩展使用同一 App Group。
+打开 Lexora.xcodeproj 后，选择 Lexora 方案。默认的 Run 使用 Debug 配置，适用于免费 Personal Team。给 Lexora 和 LexoraShare 两个 target 选择同一 Team，连接已启用开发者模式的 iPhone 或 iPad，选择设备后按 ⌘R。两者共用 App Group，系统分享可将文章交给本机资料库。阅读记录与收藏分别保存在各台设备上。
 
-模拟器的 SwiftData 持久化在本地；真机构建显式指定 CloudKit 私有数据库。每个模型字段有默认值，没有唯一性约束。分享扩展先原子写入独立文件，主应用成功保存 SwiftData 后才移除文件，重复处理同一分享 ID 不会创建第二条历史。云端同步的账户状态与每一条记录的实际同步结果是两个不同的状态。
+Release 配置用于完整版，真机通过私有 CloudKit 数据库同步。正式签名时选择支持 iCloud 和推送的开发团队，配置项目的 LEXORA_BUNDLE_ID、LEXORA_APP_GROUP 和 LEXORA_CLOUD_CONTAINER。主应用需要 iCloud/CloudKit、Push Notifications、Remote notifications 和 App Groups，扩展使用同一 App Group。模拟器上的资料库始终使用本地存储。
+
+工程结构由 XcodeGen 2.44.1 管理。重新生成工程时运行 `xcodegen generate`，并在 Xcode 中重新确认签名团队。每个模型字段有默认值，没有唯一性约束。分享扩展先原子写入独立文件，主应用成功保存 SwiftData 后才移除文件，重复处理同一分享 ID 不会创建第二条历史。云端同步的账户状态与每一条记录的实际同步结果是两个不同的状态。
 
 ## 词典数据
 
