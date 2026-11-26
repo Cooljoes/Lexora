@@ -1,19 +1,28 @@
 """Build the offline subset from two Wiktextract JSONL gzip files and a selection word list.
 
-Usage: python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz starter-headwords.txt new.sqlite
+Usage: python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz headwords.txt new.sqlite [--all-chinese]
+With --all-chinese, keep all glossed English headwords from the Chinese edition
+and use the list to select entries from the English edition.
 Refuses to overwrite an existing output. Sources, licenses and hashes are in README.
 """
+import argparse
 import gzip
 import json
 import re
 import sqlite3
-import sys
 from pathlib import Path
 
-en_file, zh_file, headword_file, destination = map(Path, sys.argv[1:])
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("en_file", type=Path)
+parser.add_argument("zh_file", type=Path)
+parser.add_argument("headword_file", type=Path)
+parser.add_argument("destination", type=Path)
+parser.add_argument("--all-chinese", action="store_true", help="Also import all glossed English spellings from the Chinese edition")
+args = parser.parse_args()
+destination = args.destination
 if destination.exists():
     raise SystemExit("Choose a new database path")
-chosen = set(headword_file.read_text(encoding="utf-8").split())
+chosen = set(args.headword_file.read_text(encoding="utf-8").split())
 if not chosen:
     raise SystemExit("The headword file is empty")
 db = sqlite3.connect(destination)
@@ -128,20 +137,25 @@ def entry_detail(item, edition):
     if not senses: return
     return dict(ipa=pronunciations, etymology=etym.strip()[:2500], parts=formation[:4], senses=senses)
 
-for edition, filename in [("zh", zh_file), ("en", en_file)]:
+for edition, filename in [("zh", args.zh_file), ("en", args.en_file)]:
+    form_headwords = chosen
+    if edition == "en" and args.all_chinese:
+        form_headwords = chosen.union(row[0] for row in db.execute("SELECT DISTINCT word FROM entry"))
     with gzip.open(filename) as stream:
         for raw in stream:
             obj = json.loads(raw)
             word = obj.get("word", "")
             if obj.get("lang_code") != "en" or not is_word(word): continue
-            if word not in chosen:
-                continue
             if edition == "en":
+                if word not in form_headwords:
+                    continue
                 for inflected in obj.get("forms", []):
                     form = inflected.get("form", "")
                     tags = set(inflected.get("tags", []))
                     if form != word and is_word(form) and tags & {"plural", "past", "participle", "third-person", "comparative", "superlative"}:
                         db.execute("INSERT OR IGNORE INTO inflection VALUES(?,?,?)", (form, word, obj["pos"]))
+            if word not in chosen and not (args.all_chinese and edition == "zh"):
+                continue
             detail = entry_detail(obj, edition)
             if detail:
                 db.execute("INSERT INTO entry VALUES(?,?,?,?)", (word, obj["pos"], edition, json.dumps(detail, ensure_ascii=False, separators=(",", ":"))))

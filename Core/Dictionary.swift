@@ -91,6 +91,19 @@ enum LexiconError: LocalizedError {
     var errorDescription: String? { "离线词典读取失败，请检查应用资源。" }
 }
 enum Lexicon {
+    static let bundledHeadwordCount: Int? = {
+        guard let url = Bundle.main.url(forResource: "Dictionary", withExtension: "sqlite") else { return nil }
+        var database: OpaquePointer?
+        defer { sqlite3_close(database) }
+        guard sqlite3_open_v2(url.path, &database, SQLITE_OPEN_READONLY, nil) == SQLITE_OK else { return nil }
+        var statement: OpaquePointer?
+        defer { sqlite3_finalize(statement) }
+        let sql = "SELECT value FROM metadata WHERE key='headwords'"
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK,
+              sqlite3_step(statement) == SQLITE_ROW,
+              let text = sqlite3_column_text(statement, 0) else { return nil }
+        return Int(String(cString: text))
+    }()
     static func lookup(_ token: WordToken) throws -> [RankedSense] {
         try lookupWord(token).senses
     }
@@ -172,7 +185,7 @@ final class FormIndex {
         guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else { return nil }
     }
     deinit { sqlite3_finalize(statement); sqlite3_close(database) }
-    func resolve(_ surface: String, preferredPOS: String, contextualPOS: String) -> (String, String) {
+    private func candidates(for surface: String) -> [(String, String)] {
         sqlite3_reset(statement)
         let transient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         for column in 1...2 { sqlite3_bind_text(statement, Int32(column), surface, -1, transient) }
@@ -180,6 +193,18 @@ final class FormIndex {
         while sqlite3_step(statement) == SQLITE_ROW {
             candidates.append((String(cString: sqlite3_column_text(statement, 0)), String(cString: sqlite3_column_text(statement, 1))))
         }
+        return candidates
+    }
+    func searchForm(for surface: String) -> (lemma: String, pos: String) {
+        // A direct entry, or competing base forms, keeps the spelling the reader typed.
+        let matches = candidates(for: surface)
+        let lemmas = Set(matches.map(\.0))
+        guard lemmas.count == 1, let lemma = lemmas.first, lemma != surface else { return (surface, "") }
+        let parts = Set(matches.map(\.1))
+        return (lemma, parts.count == 1 ? parts.first! : "")
+    }
+    func resolve(_ surface: String, preferredPOS: String, contextualPOS: String) -> (String, String) {
+        var candidates = candidates(for: surface)
         if !preferredPOS.isEmpty { candidates = candidates.filter { $0.1 == preferredPOS } }
         let bases = Set(candidates.filter { $0.0 != surface }.map(\.0))
         let lemma = bases.count == 1 ? bases.first! : surface

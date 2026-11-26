@@ -12,7 +12,10 @@ struct WordToken: Identifiable, Hashable, Sendable {
     var dictionaryFallback = false
     var isFocus = false
     static func standalone(_ word: String, pos: String = "", sentence: String = "") -> Self {
-        Self(surface: word, lemma: word.lowercased(), pos: pos, location: 0, length: word.utf16.count, sentence: sentence)
+        let spelling = word.lowercased()
+        let form = pos.isEmpty && sentence.isEmpty ? FormIndex()?.searchForm(for: spelling) : nil
+        return Self(surface: word, lemma: form?.lemma ?? spelling, pos: form?.pos ?? pos,
+                    location: 0, length: word.utf16.count, sentence: sentence)
     }
 }
 

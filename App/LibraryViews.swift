@@ -163,8 +163,12 @@ struct AboutView: View {
                 }
             }
             Section("离线词典") {
-                Text("公开版词典内置 151 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
+                if let count = Lexicon.bundledHeadwordCount {
+                    LabeledContent("有释义的英文词头", value: count.formatted())
+                }
+                Text("英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
                 Link("Kaikki.org 词典数据", destination: URL(string: "https://kaikki.org/dictionary/rawdata.html")!)
+                Link("选词参考 · Simple English Wiktionary", destination: URL(string: "https://simple.wiktionary.org/")!)
                 Text("Lexora 对数据作了筛选、整理与索引。地区音标只采用明确标注的记录；词根词缀仅展示来源已有的分析。")
                 Button("查看维基词典许可") { license = .wiktionary }
                 Text("英式词头读音补充自 Britfone，美式词头读音补充自 CMUdict。Lexora 将 CMUdict 的音素和重音标记转写为宽式 IPA。两部发音词典均按拼写列出读音。")
