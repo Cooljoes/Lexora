@@ -1,0 +1,31 @@
+{
+  "model_revision": "4ef656f55554ceb242ed11febbdbbffd60dd5938",
+  "misaki_revision": "fba1236595f2d2bf21d414ba6e57d25256afada3",
+  "models": {
+    "G2PDecoder.mlmodelc/analytics/coremldata.bin": "dbf1767747fdc188222d467a45b04608b396c76c71db3abb18a5fb3680ef9827",
+    "G2PDecoder.mlmodelc/coremldata.bin": "607e960f19b4d9a30317a5a11869fcce84b300a909fcab2cc756c0d98e2dacd9",
+    "G2PDecoder.mlmodelc/metadata.json": "e54e98484fd60d26f22fd3c4e7fe87b0d92a5d2de1f958cc3c4bb36d4ae06a44",
+    "G2PDecoder.mlmodelc/model.mil": "fe647c598e0d9454d360b8ee49a59ae57ca147fc5330863ba84ccb90dce482ad",
+    "G2PDecoder.mlmodelc/weights/weight.bin": "cbaeb4e743359f607ab161af0c6d8a817462fdaec622ee788ef8ef952c5f8214",
+    "G2PEncoder.mlmodelc/analytics/coremldata.bin": "cf7fbd7e7a65529b2d2bf3941e458a0ab6dff7a298bf48e205a1727c81c26a99",
+    "G2PEncoder.mlmodelc/coremldata.bin": "0f14d46ca9fd06c68b4717294575b2b99449e67d40b7a2c56f926bf05cd90b11",
+    "G2PEncoder.mlmodelc/metadata.json": "c8e0cfd7f494ac1b3662ff8f1914b2b45f79ffb2791724cdc0576981996732e1",
+    "G2PEncoder.mlmodelc/model.mil": "8c617e569f37286b056dad800d862dc145be9a95fa9ed43857bb646ba199d7da",
+    "G2PEncoder.mlmodelc/weights/weight.bin": "6926bcd2827d21fec82839487b987e06f85fd8a6a5bb896bc4f6062461d014ec",
+    "g2p_vocab.json": "295ed64b86c2820cd665b0602ae50c6947c0e82ac643082873e0be87dca282ce",
+    "kokoro_5s.mlmodelc/analytics/coremldata.bin": "7c16110918bf9d258405db8df5dbe87a5b3f2b457976a286b1d54ba8edae93ec",
+    "kokoro_5s.mlmodelc/coremldata.bin": "0b4c112a5df1467e20d7aa185f4a39dbc622126c5373eac047d571ee9afb6d3b",
+    "kokoro_5s.mlmodelc/model.mil": "7107c20e7e3fc651b041571a1fad02531540f2f2e9c58229c261df3822ebb463",
+    "kokoro_5s.mlmodelc/weights/weight.bin": "2dfc4610bdac87159e33e6f3d3c011c110928f89916d9a59621eff48e7523c6a",
+    "vocab_index.json": "433690ab1da1256639c00179e7961a9e9f50ec91077a9c0877107c14e04fb989",
+    "voices/af_heart.json": "c00984469c315ee8709bebb8ea0bd8321eae2d952f6db7c6214d660028d01ed2",
+    "voices/bf_emma.json": "170694d56013cafeea73f547d671152033e5e5e7efef861d6c9be0ea0b5f4549"
+  },
+  "dictionaries": {
+    "gb_gold.json": "29e62f4b60261c88f7f3c2c7811ca3825978948090b72d2b27d565b729282f71",
+    "gb_silver.json": "48131e2d92ccc41655f4543e87e0f938e71463eb5a54be7f0693bb712ebb6bce",
+    "us_gold.json": "dc414872a49a28ae6c141463d502fd945f3b2fde040484fdc47d00cc4612686f",
+    "us_silver.json": "de8f67be911bb6c659187b4a65fd966b6a30e56350e0f790d763210b053ac475"
+  },
+  "lexicon_rows_sha256": "fafadb66b4b818c7832d003e1c6cfd8c85a13942e3573557f22919dccda58afe"
+}

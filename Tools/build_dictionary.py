@@ -1,6 +1,6 @@
 """Build the offline subset from two Wiktextract JSONL gzip files and a selection word list.
 
-Usage: python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz common.txt new.sqlite
+Usage: python3 Tools/build_dictionary.py en.jsonl.gz zh.jsonl.gz starter-headwords.txt new.sqlite
 Refuses to overwrite an existing output. Sources, licenses and hashes are in README.
 """
 import gzip
@@ -10,16 +10,12 @@ import sqlite3
 import sys
 from pathlib import Path
 
-en_file, zh_file, common_file, destination = map(Path, sys.argv[1:])
+en_file, zh_file, headword_file, destination = map(Path, sys.argv[1:])
 if destination.exists():
     raise SystemExit("Choose a new database path")
-chosen = set(common_file.read_text().split()) | set(
-    "grand grandeur breathe originally whilst planet cycle fixed law gravity beginning endless "
-    "beautiful wonderful evolve several power life form resilience resilient resiliently banking "
-    "curiosity curious unravel ephemeral serendipity microscope biodiversity photosynthesis "
-    "observe observation remarkable unfamiliar leaf fern forest foliage ecology botanical "
-    "read reading reader river bank deposit water shore lend loan current language".split()
-)
+chosen = set(headword_file.read_text(encoding="utf-8").split())
+if not chosen:
+    raise SystemExit("The headword file is empty")
 db = sqlite3.connect(destination)
 db.executescript("""
 CREATE TABLE entry(word TEXT NOT NULL, pos TEXT NOT NULL, edition TEXT NOT NULL, detail TEXT NOT NULL);
@@ -139,9 +135,7 @@ for edition, filename in [("zh", zh_file), ("en", en_file)]:
             word = obj.get("word", "")
             if obj.get("lang_code") != "en" or not is_word(word): continue
             if word not in chosen:
-                if edition == "zh" and len(chosen) < 32000:
-                    chosen.add(word)
-                else: continue
+                continue
             if edition == "en":
                 for inflected in obj.get("forms", []):
                     form = inflected.get("form", "")

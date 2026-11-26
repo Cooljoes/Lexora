@@ -19,7 +19,8 @@ struct WordSheet: View {
     @State private var saveError: String?
     @AppStorage("lexora.voice.en-GB") private var britishVoiceID = ""
     @AppStorage("lexora.voice.en-US") private var americanVoiceID = ""
-    @AppStorage(SpeechMode.preferenceKey) private var speechMode: SpeechMode = .system
+    @AppStorage(SpeechMode.preferenceKey) private var preferredSpeechMode: SpeechMode = .system
+    private var speechMode: SpeechMode { KokoroEngine.hasBundledPack ? preferredSpeechMode : .system }
     @State private var installedVoices: [PronunciationVoice]?
     @State private var voiceRevision = 0
     @State private var lastPlayback: (locale: String, result: PlaybackFeedback)?

@@ -106,16 +106,24 @@ struct ReaderSettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("发音方式", selection: $speechMode) {
-                        Text("系统语音").tag(SpeechMode.system)
-                        Text("AI 语音包").tag(SpeechMode.kokoro)
-                    }.pickerStyle(.segmented)
+                    if KokoroEngine.hasBundledPack {
+                        Picker("发音方式", selection: $speechMode) {
+                            Text("系统语音").tag(SpeechMode.system)
+                            Text("AI 语音包").tag(SpeechMode.kokoro)
+                        }.pickerStyle(.segmented)
+                    } else {
+                        Text("系统语音").accessibilityIdentifier("systemVoiceOnly")
+                    }
                 } header: {
                     Text("单词发音")
                 } footer: {
-                    Text(speechMode == .system
-                         ? "使用设备上的英语声音。可在词条中分别选择英式和美式声音。"
-                         : "Kokoro-82M 随应用提供，在设备上离线合成英式和美式发音。")
+                    if KokoroEngine.hasBundledPack {
+                        Text(speechMode == .system
+                             ? "使用设备上的英语声音。可在词条中分别选择英式和美式声音。"
+                             : "Kokoro-82M 随应用提供，在设备上离线合成英式和美式发音。")
+                    } else {
+                        Text("本版本使用设备上的英式和美式声音。如需 AI 语音，在工程目录运行 python3 Tools/fetch_voice_pack.py，再用 Xcode 重新构建。")
+                    }
                 }
                 Section {
                     NavigationLink("关于与数据来源") { AboutView() }
@@ -155,7 +163,7 @@ struct AboutView: View {
                 }
             }
             Section("离线词典") {
-                Text("内置 30,798 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
+                Text("公开版词典内置 151 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
                 Link("Kaikki.org 词典数据", destination: URL(string: "https://kaikki.org/dictionary/rawdata.html")!)
                 Text("Lexora 对数据作了筛选、整理与索引。地区音标只采用明确标注的记录；词根词缀仅展示来源已有的分析。")
                 Button("查看维基词典许可") { license = .wiktionary }

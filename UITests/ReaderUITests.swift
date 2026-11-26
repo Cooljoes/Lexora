@@ -227,6 +227,24 @@ final class ReaderUITests: XCTestCase {
         let app = launch()
         tapSection("设置", app)
         let ai = app.segmentedControls.buttons["AI 语音包"]
+        if app.staticTexts["systemVoiceOnly"].exists {
+            XCTAssertFalse(ai.exists)
+            app.terminate()
+            app.launchArguments += ["-lexora.voice.mode", "kokoro"]
+            app.launch()
+            tapSection("设置", app)
+            XCTAssertTrue(app.staticTexts["systemVoiceOnly"].waitForExistence(timeout: 8))
+            XCTAssertFalse(ai.exists)
+            app.buttons["完成"].tap()
+            tapSection("生词本", app)
+            let search = app.textFields["wordSearch"]
+            search.tap()
+            search.typeText("daylight")
+            app.buttons["dictionaryLookup"].tap()
+            XCTAssertTrue(app.buttons["选择英式声音"].waitForExistence(timeout: 8), app.debugDescription)
+            XCTAssertTrue(app.buttons["选择美式声音"].exists)
+            return
+        }
         XCTAssertTrue(ai.waitForExistence(timeout: 8), app.debugDescription)
         ai.tap()
         app.buttons["完成"].tap()

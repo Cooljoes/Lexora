@@ -2,6 +2,7 @@
 
 Usage: python3 Tools/import_pronunciations.py path/to/Dictionary.sqlite
 Add --sources DIR to read the two upstream files from disk instead of HTTPS.
+Use --headwords-only to limit output to the dictionary and any --extra-word entries.
 Both modes verify SHA-256. Run after build_dictionary.py. The import is atomic
 and safe to repeat. Sources and transcription conventions are documented in
 Resources/Pronunciation-Licenses.txt.
@@ -133,20 +134,31 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("database", type=Path)
     parser.add_argument("--sources", type=Path, help="Directory containing both pinned pronunciation files")
+    parser.add_argument("--headwords-only", action="store_true", help="Import pronunciations only for words in the entry table and --extra-word")
+    parser.add_argument("--extra-word", action="append", default=[], help="Include a pronunciation-only headword (with --headwords-only)")
     args = parser.parse_args()
+    if args.extra_word and not args.headwords_only:
+        parser.error("--extra-word requires --headwords-only")
     uk = source_text(UK_FILENAME, args.sources)
     us = source_text(US_FILENAME, args.sources)
     db = sqlite3.connect(args.database.resolve().as_uri() + "?mode=rw", uri=True)
     try:
         with db:
             db.execute("BEGIN IMMEDIATE")
+            selected = None
+            if args.headwords_only:
+                selected = {row[0] for row in db.execute("SELECT DISTINCT word FROM entry")}
+                selected.update(word.lower() for word in args.extra_word)
             db.execute("SELECT 1 FROM entry LIMIT 1")  # Require an existing Lexora dictionary.
             db.execute("DROP TABLE IF EXISTS reference_ipa")
             db.execute("""CREATE TABLE reference_ipa (
                 word TEXT NOT NULL, region TEXT NOT NULL, variant INTEGER NOT NULL, ipa TEXT NOT NULL,
                 PRIMARY KEY(word,region,variant)) WITHOUT ROWID""")
             for region, source in [("uk", uk), ("us", us)]:
-                db.executemany("INSERT INTO reference_ipa VALUES(?,?,?,?)", pronunciations(source, region))
+                rows = pronunciations(source, region)
+                if selected is not None:
+                    rows = (row for row in rows if row[0] in selected)
+                db.executemany("INSERT INTO reference_ipa VALUES(?,?,?,?)", rows)
             db.execute("INSERT OR REPLACE INTO metadata(key, value) VALUES('schema_version', '2')")
         for row in db.execute("SELECT region, count(DISTINCT word), count(*) FROM reference_ipa GROUP BY region"):
             print(f"{row[0]}: {row[1]:,} headwords, {row[2]:,} readings")

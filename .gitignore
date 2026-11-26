@@ -11,3 +11,4 @@ build/
 __pycache__/
 KokoroVoicePack/*
 !KokoroVoicePack/*.txt
+.lexora-voice-*/

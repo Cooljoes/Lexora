@@ -6,6 +6,7 @@ import AVFAudio
 
 final class ReadingTests: XCTestCase {
     func testBundledKokoroRendersBritishAndAmericanSpeech() async throws {
+        try XCTSkipUnless(KokoroEngine.hasBundledPack, "Install the optional Kokoro voice pack to exercise real model output.")
         for region in ["en-GB", "en-US"] {
             let samples = try await KokoroEngine.shared.synthesize("hospital", language: region)
             // A complete word should contain speech and end before the export's five-second padded window.

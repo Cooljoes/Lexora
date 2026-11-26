@@ -5,12 +5,24 @@ import SQLite3
 /// On-device Kokoro v1.0 synthesis. The model returns mono PCM at 24 kHz.
 actor KokoroEngine {
     static let shared = KokoroEngine()
+    static let bundledDirectory = Bundle.main.url(forResource: "KokoroVoicePack", withExtension: nil)
+    static let hasBundledPack: Bool = {
+        guard let directory = bundledDirectory else { return false }
+        let models = ["kokoro_5s.mlmodelc", "G2PEncoder.mlmodelc", "G2PDecoder.mlmodelc"]
+        let modelFiles = models.flatMap { model in
+            ["model.mil", "coremldata.bin", "weights/weight.bin"].map { model + "/" + $0 }
+        }
+        let resources = ["lexicon.sqlite", "vocab_index.json", "g2p_vocab.json", "voices/af_heart.json", "voices/bf_emma.json"]
+        return (modelFiles + resources).allSatisfy {
+            FileManager.default.isReadableFile(atPath: directory.appendingPathComponent($0).path)
+        }
+    }()
 
     private let directory: URL?
     private var pack: KokoroPack?
 
     init(directory: URL? = nil) {
-        self.directory = directory ?? Bundle.main.url(forResource: "KokoroVoicePack", withExtension: nil)
+        self.directory = directory ?? Self.bundledDirectory
     }
 
     func synthesize(_ text: String, language: String, ipaHint: String? = nil) async throws -> [Float] {
