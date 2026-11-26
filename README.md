@@ -1,39 +1,60 @@
-# Lexora
+<h1><img src="docs/images/lexora.jpg" alt="Lexora · iPhone 与 iPad 上的英语精读"></h1>
 
-**0.2.1（构建 4）** · 原生 iPhone / iPad 英语精读应用 · iOS / iPadOS 26.0 及以上
+在 Lexora 里读一段英文，轻点原文中的单词，就能对照原句选释义、听英美发音，并把生词留到下次复习。应用支持英译简中，也可以离线查词。
 
-粘贴或分享一段英文，即可查看全文译文、点词查询语境释义、英美音标和词源，并收藏生词。词条链接到数据来源。SwiftUI 界面支持 iPad 分栏、大字号和深色模式。
+[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.2.1（构建 4）](https://github.com/Cooljoes/Lexora/releases/tag/v0.2.1)
+
+## 从原文到词条
+
+<p align="center">
+  <a href="docs/images/ipad-reading.png"><img src="docs/images/ipad-reading.png" width="520" alt="iPad 横屏精读《物种起源》选段，左侧为导航，正文高亮重点词"></a>
+  <a href="docs/images/iphone-word.png"><img src="docs/images/iphone-word.png" width="167" alt="iPhone 上的 hospital 词条，显示中文维基词典收录的释义、英美音标和词源"></a>
+</p>
+
+打开「书桌 → 经典选读」，就能读到图中达尔文《物种起源》的选段。读自己的文章时，可以从剪贴板粘贴英文，也可以从其他应用分享选中的文字。[查看 iPhone 书桌](docs/images/iphone-desk.png)
+
+- **读原文**　重点词会在正文中高亮。Apple Translation 提供全文翻译，首次使用可能需要在设备上下载英译简中语言包。
+- **查一个词**　点词查看语境候选释义、词形、词源和已收录的构词信息。每条音标注明来源，可分别试听英式、美式发音。
+- **留着复习**　点书签收藏单词，在「生词本」查词，在「历史」继续上次的阅读。iPad 支持分栏，iPhone 使用底部标签，两端均支持大字号与深色模式。
 
 ## 从源码运行
 
-1. 用 Xcode 打开 `Lexora.xcodeproj`，选择 `Lexora` scheme 和 iPhone 或 iPad 模拟器，按 ⌘R。开发时使用 Xcode 27.2、Swift 6.4.2 和 iOS SDK 27.2。
-2. 在书桌选择「经典选读」，或在「生词本」搜索 `hospital`、`record`、`endless`。公开版自带 151 个有释义的示例词头，也可试查只有读音的 `daylight`。中文和英文 Wiktionary 的释义保留原文。
-3. 真机运行时，为主应用和分享扩展选择自己的开发团队，将工程级 `LEXORA_BUNDLE_ID` 改为自己的唯一标识，并确认 App Group 匹配。Debug 使用本地资料库。Release 的跨设备同步需要有相应权限的团队、自有 CloudKit 容器和推送配置。
+1. 在 Mac 上克隆仓库，用 Xcode 打开工程。
 
-全文翻译使用 Apple Translation。首次使用时系统可能提示下载英译简中语言包，完整翻译流程需要在支持的真机上验证。
+   ```sh
+   git clone https://github.com/Cooljoes/Lexora.git
+   cd Lexora
+   open Lexora.xcodeproj
+   ```
 
-## 发音
+2. 选择 `Lexora` 方案和 iPhone 或 iPad 模拟器，按 **⌘R**。应用支持 iOS / iPadOS 26.0 及以上，开发环境为 Xcode 27.2、Swift 6.4.2 和 iOS SDK 27.2。
+3. 打开「生词本」，搜索 `hospital`、`record` 或 `endless`。公开版内置 **151 个有释义的词头**，也可以用 `daylight` 试查只收录读音的词。释义保留中英文 Wiktionary 的原文。[词典来源与重建方法](docs/dictionary.md)
 
-默认可直接使用设备的英式或美式系统声音。要启用离线 AI 发音，在工程根目录执行下面的命令，完成后重新构建 App。
+**装到自己的 iPhone 或 iPad**　给 `Lexora` 和 `LexoraShare` 两个 target 选择同一个开发团队，将工程级 `LEXORA_BUNDLE_ID` 改为自己的唯一标识，确认两个 target 使用相同的 App Group。连接设备，在 Xcode 里选中它，按 **⌘R**。完整的系统翻译流程需在支持的真机上验证。
+
+**跨设备同步**　Debug 将生词和阅读历史存到当前设备。Release 使用 CloudKit 同步，需要支持 iCloud 和推送通知的开发团队，以及自己的 CloudKit 容器。
+
+## 离线发音
+
+默认使用设备上的系统语音。在词条中点英式或美式扬声器即可试听。要使用 **Kokoro-82M**，在工程根目录运行下列命令，再重新构建应用。
 
 ```sh
 python3 Tools/fetch_voice_pack.py
 ```
 
-脚本通过 HTTPS 从固定版本获取 Kokoro Core ML 模型和发音数据并校验散列。资源随 App 安装后可断网运行。在「设置 → 单词发音」选择「AI 语音包」，英式为 Emma，美式为 Heart。已安装的完整语音包约 95 MiB。[语音包来源与许可](KokoroVoicePack/SOURCES.txt)
+脚本从固定版本下载 Core ML 模型和发音数据，逐项校验散列。安装后在「设置 → 单词发音」选择「AI 语音包」，即可离线使用英式 Emma 和美式 Heart。完整语音包约 95 MiB。[语音包来源与许可](KokoroVoicePack/SOURCES.txt)
 
-## 代码和数据
+## 工程、测试与许可
 
-| 路径 | 内容 |
+| 目录 | 内容 |
 | --- | --- |
-| App、Core | SwiftUI 界面、NaturalLanguage 分析、SQLite 查询、Apple 翻译、SwiftData 和 Core ML 发音 |
-| Shared、ShareExtension | 跨进程收件箱和系统分享扩展 |
-| Resources | 示例词典、音标来源说明、图片和隐私清单 |
-| Tools | 词典重建、英美参考读音导入和可选语音包安装脚本 |
-| Tests、UITests | 核心逻辑、存储、语音合成和界面回归测试 |
+| [App](App) · [Core](Core) | SwiftUI 界面、NaturalLanguage 分析、Apple 翻译、SQLite 查词、SwiftData 存储和 Core ML 发音 |
+| [Shared](Shared) · [ShareExtension](ShareExtension) | 主应用与系统分享扩展之间的文字收件箱 |
+| [Resources](Resources) · [Tools](Tools) | 示例词典、发音资料、隐私清单、词典重建与语音包安装脚本 |
+| [Tests](Tests) · [UITests](UITests) | 核心逻辑、存储、语音合成与界面测试 |
 
-在 Xcode 中按 ⌘U 运行测试。要运行真实 Kokoro 合成测试，先准备语音包。工程自带 Xcode 工程文件，调整工程结构时可用 XcodeGen 从 `project.yml` 重新生成。
+在 Xcode 中按 **⌘U** 运行测试。真实 Kokoro 合成测试需要先安装语音包。调整工程结构后，可用 XcodeGen 从 `project.yml` 重新生成工程。
 
-每次交付同时更新版本号和构建号。主应用与分享扩展使用同一组编号，可在「设置 → 关于与数据来源」查看已安装的版本。
+每次交付 App 改动时同步更新版本号与构建号。主应用和分享扩展共用同一组编号，可在「设置 → 关于与数据来源」查看。[开发日志](CHANGELOG.md)
 
-[开发日志与旧版源码](CHANGELOG.md) · [示例词典重建方法](docs/dictionary.md) · [原创代码 MIT 许可](LICENSE) · [第三方资料与素材](THIRD_PARTY_NOTICES.md)
+原创代码采用 MIT 许可。词典数据、音标和语音模型分别沿用各自的许可。[MIT 许可](LICENSE) · [第三方资料与素材](THIRD_PARTY_NOTICES.md)
