@@ -1,60 +1,103 @@
-<h1><img src="docs/images/lexora.jpg" alt="Lexora · iPhone 与 iPad 上的英语精读"></h1>
+<p align="center">
+  <img src="Resources/Assets.xcassets/AppIcon.appiconset/Lexora.png" width="112" height="112" alt="Lexora app icon">
+</p>
+<h1 align="center">Lexora</h1>
+<p align="center"><strong>English close reading for iPhone and iPad</strong></p>
+<p align="center">
+  <img alt="Language: Swift" src="https://img.shields.io/badge/Language-Swift-ed7048">
+  <img alt="UI: SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-2563eb">
+  <img alt="iOS and iPadOS 26 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-26%2B-1f2937">
+  <img alt="Offline dictionary: SQLite" src="https://img.shields.io/badge/Offline-SQLite-267877">
+</p>
+<p align="center"><a href="README.md" lang="en">English</a> · <a href="README.zh-CN.md" lang="zh-CN">简体中文</a></p>
 
-在 Lexora 里读一段英文，轻点原文中的单词，就能对照原句选释义、听英美发音，并把生词留到下次复习。应用支持英译简中，也可以离线查词。
+Paste an English passage or send selected text from another app. Lexora highlights words in the original, translates the passage into Simplified Chinese, and lets you compare meanings against the sentence where you found a word. The app interface is in Simplified Chinese.
 
-[从源码运行](#从源码运行) · [开发日志与旧版本](CHANGELOG.md) · [发行版 0.3.0（构建 6）](https://github.com/Cooljoes/Lexora/releases/tag/v0.3.0)
+**Current release · 0.3.0 (build 6).** The bundled offline dictionary covers **71,105 English headwords** with definitions. Of these, 59,697 have entries from the Chinese edition of Wiktionary. [Release](https://github.com/Cooljoes/Lexora/releases/tag/v0.3.0) · [Development log and earlier versions](CHANGELOG.md)
 
-## 从原文到词条
+## Try a passage
+
+1. Open `Lexora.xcodeproj` in Xcode. Select the **Lexora** scheme and an iPhone or iPad simulator, then press **⌘R**.
+2. On the reading desk (**书桌**), open the featured selection (**经典选读**) from Darwin’s *On the Origin of Species*. Tap a highlighted word and use the bookmark to save it.
+3. Open the wordbook (**生词本**) to see the saved word and sentence. Try looking up `telescoped` to find the verb `telescope`, or `hospital` to compare British and American pronunciations.
 
 <p align="center">
-  <a href="docs/images/ipad-reading.png"><img src="docs/images/ipad-reading.png" width="520" alt="iPad 横屏精读《物种起源》选段，左侧为导航，正文高亮重点词"></a>
-  <a href="docs/images/iphone-word.png"><img src="docs/images/iphone-word.png" width="167" alt="iPhone 上的 hospital 词条，显示中文维基词典收录的释义、英美音标和词源"></a>
+  <a href="docs/images/ipad-reading.png"><img src="docs/images/ipad-reading.png" width="520" alt="An iPad showing Darwin’s passage with highlighted words and sidebar navigation"></a>
+  <a href="docs/images/iphone-word.png"><img src="docs/images/iphone-word.png" width="167" alt="The iPhone dictionary entry for hospital, with British and American IPA and source links"></a>
 </p>
 
-打开「书桌 → 经典选读」，就能读到图中达尔文《物种起源》的选段。读自己的文章时，可以从剪贴板粘贴英文，也可以从其他应用分享选中的文字。[查看 iPhone 书桌](docs/images/iphone-desk.png)
+[View the iPhone reading desk](docs/images/iphone-desk.png)
 
-- **读原文**　重点词会在正文中高亮。Apple Translation 提供全文翻译，首次使用可能需要在设备上下载英译简中语言包。
-- **查一个词**　点词查看语境候选释义、词形、词源和已收录的构词信息。每条音标注明来源，可分别试听英式、美式发音。
-- **留着复习**　点书签收藏单词，在「生词本」查词，在「历史」继续上次的阅读。iPad 支持分栏，iPhone 使用底部标签，两端均支持大字号与深色模式。
+## Reading features
 
-## 从源码运行
+| Area | What you can do |
+| --- | --- |
+| Reading | Paste or type a passage, or send selected text through the share sheet. Read with Dynamic Type, Dark Mode and a sidebar on iPad. |
+| Translation | Read the full Simplified Chinese translation alongside the English original. On a supported device, Apple Translation may prompt you to download the language pair on first use. |
+| Dictionary | Look up a word offline. Meanings are ranked using part of speech and sentence context. Entries show available IPA, word formation and etymology with their sources. An exact spelling takes priority when a form has multiple interpretations. |
+| Pronunciation | Listen to British and American system voices, or install the optional Kokoro-82M pack for on-device synthesis. |
+| Library | Save a word with its sense and original sentence, or reopen a passage from reading history. A configured Release build can sync the library across devices with CloudKit. |
 
-1. 在 Mac 上克隆仓库，用 Xcode 打开工程。
+## Architecture
 
-   ```sh
-   git clone https://github.com/Cooljoes/Lexora.git
-   cd Lexora
-   open Lexora.xcodeproj
-   ```
+```mermaid
+flowchart TD
+    Input["Paste or type"] --> Reader["SwiftUI reader"]
+    Share["Share extension"] --> Inbox["App Group inbox"]
+    Inbox --> Library["SwiftData · passages and saved words"]
+    Library -->|Open a passage| Reader
+    Reader --> Analysis["NaturalLanguage · tokens, lemmas and parts of speech"]
+    Analysis --> Word["SQLite dictionary · entries and sources"]
+    Reader --> Translation["Apple Translation"]
+    Word --> Voice["System speech or Kokoro Core ML"]
+    Reader -->|Save passage| Library
+    Word -->|Bookmark| Library
+    Translation -->|Save translation| Library
+    Library -.-> Cloud["Private CloudKit database on a configured Release device"]
+```
 
-2. 选择 `Lexora` 方案和 iPhone 或 iPad 模拟器，按 **⌘R**。应用支持 iOS / iPadOS 26.0 及以上，开发环境为 Xcode 27.2、Swift 6.4.2 和 iOS SDK 27.2。
-3. 打开「生词本」查找 `algorithm`、`ecosystem` 或 `daylight`。公开版内置 **71,105 个有释义的英文词头**，其中 59,697 个有中文版 Wiktionary 条目。如果输入的词形没有独立词条，且词典只收录了一个对应原形，应用会打开该原形。例如输入 `telescoped`，可以查到 `telescope`。[词典来源与重建方法](docs/dictionary.md)
+<details>
+<summary>Source tree</summary>
 
-**装到自己的 iPhone 或 iPad**　给 `Lexora` 和 `LexoraShare` 两个 target 选择同一个开发团队，将工程级 `LEXORA_BUNDLE_ID` 改为自己的唯一标识，确认两个 target 使用相同的 App Group。连接设备，在 Xcode 里选中它，按 **⌘R**。完整的系统翻译流程需在支持的真机上验证。
+| Directory | Contents |
+| --- | --- |
+| [App](App) · [Core](Core) | SwiftUI screens, text analysis, translation, dictionary lookup, persistence and speech |
+| [Shared](Shared) · [ShareExtension](ShareExtension) | Text validation and the shared inbox used by the app and extension |
+| [Resources](Resources) · [Tools](Tools) | Bundled dictionary, privacy manifest, data importers and voice-pack installer |
+| [Tests](Tests) · [UITests](UITests) | Unit tests and interface tests |
 
-**跨设备同步**　Debug 将生词和阅读历史存到当前设备。Release 使用 CloudKit 同步，需要支持 iCloud 和推送通知的开发团队，以及自己的 CloudKit 容器。
+</details>
 
-## 离线发音
+## Build and test
 
-默认使用设备上的系统语音。在词条中点英式或美式扬声器即可试听。要使用 **Kokoro-82M**，在工程根目录运行下列命令，再重新构建应用。
+The deployment target is **iOS / iPadOS 26.0**. Release 0.3.0 was built with Xcode 27.2, Swift 6.4.2 and the iOS 27.2 SDK. The Xcode project is checked in. XcodeGen is optional when regenerating it from `project.yml`.
+
+```sh
+git clone https://github.com/Cooljoes/Lexora.git
+cd Lexora
+open Lexora.xcodeproj
+```
+
+Choose a simulator and press **⌘U** to run the tests. Use a supported iPhone or iPad to test the full Apple Translation flow, including the first language-pack download.
+
+**On your own device.** In Signing & Capabilities, select the same development team for `Lexora` and `LexoraShare`. Set the project’s `LEXORA_BUNDLE_ID` to a unique identifier and configure the same App Group for both targets. Select the connected device and press **⌘R**. Debug builds use local storage. For Release sync, set up your own CloudKit container and use a team with iCloud and push notification entitlements.
+
+**Optional Kokoro voices.** Run the following command from the repository root, then rebuild. The installer verifies the pinned assets. In **设置 → 单词发音**, choose **AI 语音包** for Emma (British) and Heart (American). The installed pack occupies about 95 MiB and enables the real synthesis test. [Voice-pack sources and licenses](KokoroVoicePack/SOURCES.txt)
 
 ```sh
 python3 Tools/fetch_voice_pack.py
 ```
 
-脚本从固定版本下载 Core ML 模型和发音数据，逐项校验散列。安装后在「设置 → 单词发音」选择「AI 语音包」，即可离线使用英式 Emma 和美式 Heart。完整语音包约 95 MiB。[语音包来源与许可](KokoroVoicePack/SOURCES.txt)
+## Data and privacy
 
-## 工程、测试与许可
+Definitions and etymologies come from the English and Chinese editions of Wiktionary via Kaikki. Lexora preserves the source language and links to the entry. Britfone supplies additional British pronunciations, and Lexora transcribes CMUdict’s American pronunciations from ARPAbet into broad IPA. [Dictionary coverage and rebuild instructions](docs/dictionary.md) · [Pronunciation sources and conventions](Resources/Pronunciation-Licenses.txt)
 
-| 目录 | 内容 |
-| --- | --- |
-| [App](App) · [Core](Core) | SwiftUI 界面、NaturalLanguage 分析、Apple 翻译、SQLite 查词、SwiftData 存储和 Core ML 发音 |
-| [Shared](Shared) · [ShareExtension](ShareExtension) | 主应用与系统分享扩展之间的文字收件箱 |
-| [Resources](Resources) · [Tools](Tools) | 离线词典、发音资料、隐私清单、词典重建与语音包安装脚本 |
-| [Tests](Tests) · [UITests](UITests) | 核心逻辑、存储、语音合成与界面测试 |
+Lexora reads the clipboard when you tap a paste control. Dictionary lookup and word pronunciation run on the device. Debug builds and simulators store your library locally. A configured Release build on a device syncs passages, translations, saved words and their sentences through the reader’s private iCloud database. The app has no advertising or analytics SDK. [Privacy manifest](Resources/PrivacyInfo.xcprivacy)
 
-在 Xcode 中按 **⌘U** 运行测试。真实 Kokoro 合成测试需要先安装语音包。调整工程结构后，可用 XcodeGen 从 `project.yml` 重新生成工程。
+## Contributing and licensing
 
-每次交付 App 改动时同步更新版本号与构建号。主应用和分享扩展共用同一组编号，可在「设置 → 关于与数据来源」查看。[开发日志](CHANGELOG.md)
+For a dictionary correction, include the spelling, the sentence that changes its meaning and a link to the source entry. For an app issue, include the app version, device and steps to reproduce it. [Report an issue](https://github.com/Cooljoes/Lexora/issues)
 
-原创代码采用 MIT 许可。词典数据、音标和语音模型分别沿用各自的许可。[MIT 许可](LICENSE) · [第三方资料与素材](THIRD_PARTY_NOTICES.md)
+When changing the app, update the version and build number shared by the app and its extension and record the change in the development log. Both numbers are visible in **设置 → 关于与数据来源**. [Development log](CHANGELOG.md)
+
+Original Lexora code is available under the MIT license. The dictionary data, pronunciation references and optional voice assets retain their upstream terms. [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
