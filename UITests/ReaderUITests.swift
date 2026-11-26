@@ -1,10 +1,14 @@
 import XCTest
+import UIKit
 
 final class ReaderUITests: XCTestCase {
-    private func launch() -> XCUIApplication {
+    private func launch(contentSize: UIContentSizeCategory? = nil) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN"]
+        if let contentSize {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", contentSize.rawValue]
+        }
         if UIDevice.current.userInterfaceIdiom == .pad { XCUIDevice.shared.orientation = .landscapeLeft }
         app.launch()
         return app
@@ -25,7 +29,7 @@ final class ReaderUITests: XCTestCase {
     func testDeskAndOfflineWordbook() {
         let app = launch()
         XCTAssertTrue(app.buttons["featuredReading"].waitForExistence(timeout: 15), app.debugDescription)
-        attach("书桌", app)
+        attach("书桌")
         tapSection("生词本", app)
         let search = app.textFields["wordSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 6))
@@ -39,7 +43,7 @@ final class ReaderUITests: XCTestCase {
         if favorite.label == "取消收藏" { favorite.tap() }
         favorite.tap()
         XCTAssertEqual(favorite.label, "取消收藏")
-        attach("离线词条", app)
+        attach("离线词条")
         app.buttons["完成"].tap()
         app.terminate()
         app.launch()
@@ -77,7 +81,80 @@ final class ReaderUITests: XCTestCase {
         app.buttons["featuredReading"].tap()
         XCTAssertTrue(app.staticTexts["英文原文"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'focus-'")).firstMatch.waitForExistence(timeout: 10), app.debugDescription)
-        attach("精读", app)
+        attach("精读")
+    }
+    func testFocusWordsFitAtAccessibilitySize() throws {
+        let app = launch(contentSize: .accessibilityExtraLarge)
+        let featured = app.buttons["featuredReading"]
+        XCTAssertTrue(featured.waitForExistence(timeout: 10))
+        attach("大字号书桌")
+        featured.tap()
+
+        let reader = app.scrollViews.containing(.staticText, identifier: "英文原文").firstMatch
+        let words = reader.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'focus-'"))
+        XCTAssertTrue(words.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        let chips = words.allElementsBoundByIndex
+        XCTAssertEqual(chips.count, 6)
+        for chip in chips {
+            // Only scroll vertically. A chip clipped off the trailing edge must fail.
+            for _ in 0..<12 {
+                if chip.isHittable { break }
+                reader.swipeUp(velocity: .slow)
+            }
+            XCTAssertTrue(chip.isHittable, chip.identifier)
+            XCTAssertGreaterThan(chip.frame.width, 0)
+            XCTAssertGreaterThanOrEqual(chip.frame.minX, reader.frame.minX - 1, chip.identifier)
+            XCTAssertLessThanOrEqual(chip.frame.maxX, reader.frame.maxX + 1, chip.identifier)
+        }
+        attach("大字号重点词")
+        let last = try XCTUnwrap(chips.last)
+        let lemma = String(last.identifier.dropFirst("focus-".count))
+        last.tap()
+        XCTAssertTrue(app.staticTexts[lemma].firstMatch.waitForExistence(timeout: 8), app.debugDescription)
+        attach("大字号词条")
+    }
+    func testHistorySearchWithNoMatches() {
+        let app = launch()
+        app.buttons["featuredReading"].tap()
+        XCTAssertTrue(app.staticTexts["英文原文"].waitForExistence(timeout: 8))
+        app.terminate()
+        app.launch()
+        tapSection("历史", app)
+        XCTAssertTrue(app.buttons.containing(.staticText, identifier: "物种起源").firstMatch.waitForExistence(timeout: 8))
+        let search = app.searchFields.firstMatch
+        if !search.isHittable { app.swipeDown() }
+        if !search.isHittable {
+            let reveal = app.buttons.matching(NSPredicate(format: "label IN %@", ["搜索", "Search"])).firstMatch
+            if reveal.exists { reveal.tap() }
+        }
+        XCTAssertTrue(search.waitForExistence(timeout: 5), app.debugDescription)
+        search.tap()
+        search.typeText("zzzxqv")
+        XCTAssertTrue(app.staticTexts["未找到相关记录"].waitForExistence(timeout: 5), app.debugDescription)
+    }
+    func testUnregionalizedIPAAndSenseSelection() {
+        let app = launch()
+        tapSection("生词本", app)
+        let search = app.textFields["wordSearch"]
+        search.tap()
+        search.typeText("adagio")
+        app.buttons["dictionaryLookup"].tap()
+        let ipa = app.staticTexts["generalIPA"]
+        XCTAssertTrue(ipa.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(ipa.label.contains("/əˈdɑːd͡ʒiəʊ/"), ipa.label)
+        let source = app.descendants(matching: .any).matching(identifier: "generalIPASource").firstMatch
+        XCTAssertTrue(source.label.contains("English Wiktionary"), source.label)
+
+        let picker = app.buttons["sensePicker"]
+        picker.tap()
+        let options = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'sense-'"))
+        let other = options.matching(NSPredicate(format: "selected == false")).firstMatch
+        XCTAssertTrue(other.waitForExistence(timeout: 5), app.debugDescription)
+        let newSelection = other.identifier
+        other.tap()
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), app.debugDescription)
+        picker.tap()
+        XCTAssertTrue(app.buttons[newSelection].isSelected)
     }
     func testSystemCopyAndPaste() {
         let app = launch()
@@ -122,8 +199,8 @@ final class ReaderUITests: XCTestCase {
         incoming.tap()
         XCTAssertTrue(app.staticTexts["英文原文"].waitForExistence(timeout: 8))
     }
-    private func attach(_ name: String, _ app: XCUIApplication) {
-        let attachment = XCTAttachment(screenshot: app.screenshot())
+    private func attach(_ name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)

@@ -43,15 +43,16 @@ struct ReaderView: View {
                 if !focus.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         SectionLine(title: "重点词汇", detail: "\(focus.count) 个")
-                        ScrollView(.horizontal) {
-                            HStack {
-                                ForEach(focus) { token in
-                                    Button(token.lemma) { word = token }.font(.subheadline.weight(.medium))
-                                        .buttonStyle(.bordered).buttonBorderShape(.capsule)
-                                        .accessibilityIdentifier("focus-" + token.lemma)
+                        KeywordFlow {
+                            ForEach(focus) { token in
+                                Button { word = token } label: {
+                                    Text(token.lemma).fixedSize(horizontal: false, vertical: true)
                                 }
+                                .font(.subheadline.weight(.medium))
+                                .buttonStyle(.bordered).buttonBorderShape(.capsule)
+                                .accessibilityIdentifier("focus-" + token.lemma)
                             }
-                        }.scrollIndicators(.hidden)
+                        }
                     }
                 }
                 TranslationBlock(item: item).id(item.id)
@@ -90,6 +91,42 @@ struct ReaderView: View {
             cursor = token.location + token.length
         }
         result += AttributedString(original.substring(from: cursor))
+        return result
+    }
+}
+
+private struct KeywordFlow: Layout {
+    private let spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let measured = frames(width: proposal.width ?? .infinity, subviews: subviews)
+        return CGSize(width: measured.map(\.maxX).max() ?? 0, height: measured.map(\.maxY).max() ?? 0)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        for (view, frame) in zip(subviews, frames(width: bounds.width, subviews: subviews)) {
+            view.place(at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
+                       anchor: .topLeading, proposal: ProposedViewSize(frame.size))
+        }
+    }
+
+    private func frames(width: CGFloat, subviews: Subviews) -> [CGRect] {
+        var result: [CGRect] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        for view in subviews {
+            let ideal = view.sizeThatFits(.unspecified)
+            let size = ideal.width <= width ? ideal : view.sizeThatFits(.init(width: width, height: nil))
+            if x > 0, x + size.width > width {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            result.append(CGRect(origin: CGPoint(x: x, y: y), size: size))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
         return result
     }
 }

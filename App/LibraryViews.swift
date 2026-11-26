@@ -9,8 +9,11 @@ struct HistoryView: View {
     @State private var error: String?
     let open: (Reading) -> Void
     var body: some View {
+        let matches = records.filter {
+            search.isEmpty || $0.text.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search)
+        }
         List {
-            ForEach(records.filter { search.isEmpty || $0.text.localizedCaseInsensitiveContains(search) || $0.title.localizedCaseInsensitiveContains(search) }) { item in
+            ForEach(matches) { item in
                 Button { open(item) } label: { PassageRow(item: item) }.buttonStyle(.plain)
                     .listRowBackground(Ink.card)
                     .swipeActions {
@@ -22,7 +25,11 @@ struct HistoryView: View {
             }
         }.scrollContentBackground(.hidden).background(Ink.paper)
         .overlay {
-            if records.isEmpty { ContentUnavailableView("还没有阅读记录", systemImage: "clock", description: Text("从书桌打开一段英文，即可在这里继续阅读。")) }
+            if records.isEmpty {
+                ContentUnavailableView("还没有阅读记录", systemImage: "clock", description: Text("从书桌打开一段英文，即可在这里继续阅读。"))
+            } else if matches.isEmpty {
+                ContentUnavailableView("未找到相关记录", systemImage: "magnifyingglass", description: Text("试试其他标题或原文关键词。"))
+            }
         }
         .navigationTitle("阅读历史")
         .searchable(text: $search, prompt: "搜索标题或原文")
@@ -32,6 +39,7 @@ struct HistoryView: View {
 
 struct WordbookView: View {
     @Query(sort: \SavedWord.created, order: .reverse) private var records: [SavedWord]
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var search = ""
     @State private var selected: WordToken?
     @State private var preferredGloss: String?
@@ -43,12 +51,19 @@ struct WordbookView: View {
     var body: some View {
         List {
             Section {
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundStyle(Ink.green)
-                    TextField("输入英文，查询离线词典", text: $search).textInputAutocapitalization(.never).autocorrectionDisabled()
-                        .accessibilityIdentifier("wordSearch").submitLabel(.search).onSubmit { lookup() }
+                let searchLayout = typeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                    : AnyLayout(HStackLayout())
+                searchLayout {
+                    HStack {
+                        Image(systemName: "magnifyingglass").foregroundStyle(Ink.green).accessibilityHidden(true)
+                        TextField(typeSize.isAccessibilitySize ? "输入英文" : "输入英文，查询离线词典", text: $search)
+                            .textInputAutocapitalization(.never).autocorrectionDisabled()
+                            .accessibilityLabel("输入英文，查询离线词典").accessibilityIdentifier("wordSearch")
+                            .submitLabel(.search).onSubmit { lookup() }
+                    }
                     if !search.isEmpty {
-                        Button("查词", action: lookup).buttonStyle(.borderless).accessibilityIdentifier("dictionaryLookup")
+                        Button("查词", action: lookup).fixedSize().buttonStyle(.borderless).accessibilityIdentifier("dictionaryLookup")
                     }
                 }
             }.listRowBackground(Ink.card)
@@ -61,7 +76,9 @@ struct WordbookView: View {
                     Button { preferredGloss = saved.gloss; selected = saved.token } label: {
                         VStack(alignment: .leading, spacing: 5) {
                             Text(saved.lemma).font(.custom("Baskerville-SemiBold", size: 24)).foregroundStyle(Ink.text)
-                            if !saved.gloss.isEmpty { Text(saved.gloss).font(.subheadline).lineLimit(2).foregroundStyle(Ink.muted) }
+                            if !saved.gloss.isEmpty {
+                                Text(saved.gloss).font(.subheadline).lineLimit(typeSize.isAccessibilitySize ? nil : 2).foregroundStyle(Ink.muted)
+                            }
                         }
                     }.listRowBackground(Ink.card)
                 }

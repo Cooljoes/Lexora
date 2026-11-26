@@ -14,11 +14,16 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .lastTextBaseline) {
-                        Text("阅读书桌").font(.system(.largeTitle, design: .serif, weight: .bold)).foregroundStyle(Ink.text)
-                        Spacer()
-                        Text(Date.now.formatted(.dateTime.month().day().weekday(.wide).locale(Locale(identifier: "zh_CN"))))
-                            .font(.caption).foregroundStyle(Ink.muted)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .lastTextBaseline) {
+                            deskTitle.fixedSize()
+                            Spacer(minLength: 12)
+                            today.fixedSize()
+                        }
+                        VStack(alignment: .leading, spacing: 5) {
+                            deskTitle
+                            today
+                        }
                     }
                     Rectangle().fill(Ink.green).frame(height: 1)
                 }
@@ -35,7 +40,7 @@ struct HomeView: View {
                     HStack {
                         SectionLine(title: "最近阅读")
                         if !recent.isEmpty {
-                            Button("全部", action: onHistory).font(.subheadline)
+                            Button("全部", action: onHistory).font(.subheadline).fixedSize()
                         }
                     }
                     if recent.isEmpty {
@@ -62,6 +67,15 @@ struct HomeView: View {
                 Button(action: onAbout) { Image(systemName: "info.circle") }.accessibilityLabel("关于与数据来源")
             }
         }
+    }
+    private var deskTitle: some View {
+        Text("阅读书桌")
+            .font(.system(.largeTitle, design: .serif, weight: .bold)).foregroundStyle(Ink.text)
+            .accessibilityAddTraits(.isHeader)
+    }
+    private var today: some View {
+        Text(Date.now.formatted(.dateTime.month().day().weekday(.wide).locale(Locale(identifier: "zh_CN"))))
+            .font(.caption).foregroundStyle(Ink.muted)
     }
     private func actionRow(_ title: String, _ subtitle: String, _ symbol: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {

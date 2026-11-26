@@ -33,12 +33,20 @@ struct SectionLine: View {
     let title: String
     var detail: String = ""
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title).font(.headline).foregroundStyle(Ink.text)
-            Spacer()
-            if !detail.isEmpty { Text(detail).font(.caption).foregroundStyle(Ink.muted) }
-        }
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                heading.fixedSize()
+                Spacer(minLength: 0)
+                if !detail.isEmpty { caption.fixedSize() }
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                heading
+                if !detail.isEmpty { caption }
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
+    private var heading: some View { Text(title).font(.headline).foregroundStyle(Ink.text) }
+    private var caption: some View { Text(detail).font(.caption).foregroundStyle(Ink.muted) }
 }
 extension View {
     func paperCard(_ radius: CGFloat = 17) -> some View {
@@ -48,21 +56,30 @@ extension View {
 }
 
 struct PassageRow: View {
+    @Environment(\.dynamicTypeSize) private var type
     let item: Reading
     var body: some View {
         HStack(spacing: 13) {
             Image(systemName: item.text == Featured.text ? "leaf" : "doc.text")
                 .foregroundStyle(Ink.green).frame(width: 40, height: 46).background(Ink.pale, in: RoundedRectangle(cornerRadius: 9))
             VStack(alignment: .leading, spacing: 5) {
-                Text(item.title).font(.body.weight(.medium)).foregroundStyle(Ink.text).lineLimit(2)
-                HStack(spacing: 6) {
-                    Text(item.origin)
-                    Text("·")
-                    Text(item.lastRead.formatted(date: .abbreviated, time: .omitted))
+                Text(item.title).font(.body.weight(.medium)).foregroundStyle(Ink.text)
+                    .lineLimit(type.isAccessibilitySize ? nil : 2)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 5) {
+                        Text(item.origin)
+                        Text("·").accessibilityHidden(true)
+                        date
+                    }.fixedSize()
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.origin)
+                        date
+                    }
                 }.font(.caption).foregroundStyle(Ink.muted)
             }
-            Spacer(minLength: 3)
+            .multilineTextAlignment(.leading).frame(maxWidth: .infinity, alignment: .leading)
             Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Ink.muted)
         }.contentShape(Rectangle())
     }
+    private var date: Text { Text(item.lastRead.formatted(date: .abbreviated, time: .omitted)) }
 }

@@ -67,7 +67,10 @@ struct DeskShell: View {
                     onSample: { run { try open(Featured.text, origin: "经典选读") } },
                     onPaste: { run { try open(UIPasteboard.general.string ?? "", origin: "剪贴板") } },
                     onCompose: { composer = true }, onSelect: { resume($0, history: false) },
-                    onHistory: { section = .history }, onAbout: { about = true }
+                    onHistory: {
+                        historyPath.removeAll()
+                        section = .history
+                    }, onAbout: { about = true }
                 ).navigationDestination(for: Reading.self) { ReaderView(item: $0) }
             }
         case .words: NavigationStack { WordbookView() }
@@ -113,11 +116,21 @@ struct Composer: View {
                     .font(.system(.title3, design: .serif)).scrollContentBackground(.hidden)
                     .accessibilityLabel("英文输入框").accessibilityIdentifier("sourceInput")
                     .padding(10).paperCard()
-                HStack {
-                    if let error { Text(error).foregroundStyle(.red) }
-                    Spacer()
-                    Text("\(input.count) / 12,000").foregroundStyle(Ink.muted).monospacedDigit()
-                }.font(.caption)
+                if let error {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(error).foregroundStyle(.red).fixedSize()
+                            Spacer(minLength: 8)
+                            characterCount.fixedSize()
+                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(error).foregroundStyle(.red)
+                            characterCount.frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                    }.font(.caption)
+                } else {
+                    characterCount.font(.caption).frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
             .padding().background(Ink.paper).navigationTitle("输入原文").navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -130,5 +143,8 @@ struct Composer: View {
                 }
             }
         }
+    }
+    private var characterCount: some View {
+        Text("\(input.count) / 12,000").foregroundStyle(Ink.muted).monospacedDigit()
     }
 }
