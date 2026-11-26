@@ -13,9 +13,11 @@ final class ReadingTests: XCTestCase {
         let novelty = PronunciationVoice(identifier: "effects", language: "en-US", quality: .premium, traits: [.isNoveltyVoice])
         let personal = PronunciationVoice(identifier: "personal", language: "en-US", quality: .premium, traits: [.isPersonalVoice])
         let voices = [basic, uk, enhanced, premium, personal, novelty]
-        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic")?.id, "premium")
-        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", selectedIdentifier: "enhanced")?.id, "enhanced")
-        XCTAssertEqual(PronunciationVoice.best(in: [basic, enhanced, uk], language: "en-US", selectedIdentifier: "removed")?.id, "enhanced")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic")?.id, "basic")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic", selectedIdentifier: "enhanced")?.id, "enhanced")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic", selectedIdentifier: PronunciationVoice.highestQualityID)?.id, "premium")
+        XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-US", preferredIdentifier: "basic", selectedIdentifier: "removed")?.id, "basic")
+        XCTAssertEqual(PronunciationVoice.best(in: [basic, enhanced, uk], language: "en-US", preferredIdentifier: "uk")?.id, "enhanced")
         XCTAssertEqual(PronunciationVoice.best(in: voices, language: "en-GB", selectedIdentifier: "basic")?.id, "uk")
         XCTAssertNil(PronunciationVoice.best(in: [novelty, personal, uk], language: "en-US", selectedIdentifier: "effects"))
     }
@@ -44,7 +46,8 @@ final class ReadingTests: XCTestCase {
         let available = AVSpeechSynthesisVoice.speechVoices().map {
             PronunciationVoice(identifier: $0.identifier, language: $0.language, quality: $0.quality, traits: $0.voiceTraits)
         }
-        guard let chosen = PronunciationVoice.best(in: available, language: language),
+        let preferred = AVSpeechSynthesisVoice(language: language)?.identifier
+        guard let chosen = PronunciationVoice.best(in: available, language: language, preferredIdentifier: preferred),
               let voice = AVSpeechSynthesisVoice(identifier: chosen.id) else {
             throw XCTSkip("当前设备没有可测试的 \(language) 语音。")
         }

@@ -214,6 +214,8 @@ struct WordSheet: View {
         let region = Text(label).font(.subheadline.weight(.medium)).foregroundStyle(Ink.green)
         let preference = locale == "en-GB" ? $britishVoiceID : $americanVoiceID
         let options = installedVoices?.filter { $0.matches(language: locale) } ?? []
+        let selection = options.contains { $0.id == preference.wrappedValue } || preference.wrappedValue == PronunciationVoice.highestQualityID
+            ? preference.wrappedValue : ""
         return VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
                 if let ipa {
@@ -231,13 +233,14 @@ struct WordSheet: View {
                 Spacer(minLength: 2)
                 Menu {
                     Picker(label + "声音", selection: Binding(
-                        get: { options.contains { $0.id == preference.wrappedValue } ? preference.wrappedValue : "" },
+                        get: { selection },
                         set: { id in
                             preference.wrappedValue = id
                             playWord(locale: locale, selectedID: id)
                         }
                     )) {
-                        Text("自动选择最高音质").tag("")
+                        Text("跟随系统").tag("")
+                        Text("自动选择最高音质").tag(PronunciationVoice.highestQualityID)
                         ForEach(options) { voice in Text(voice.displayName).tag(voice.id) }
                     }.pickerStyle(.inline)
                     if installedVoices == nil {
@@ -249,7 +252,8 @@ struct WordSheet: View {
                     Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44)
                 }
                 .accessibilityLabel("选择" + label + "声音")
-                .accessibilityValue(options.first { $0.id == preference.wrappedValue }?.displayName ?? "自动")
+                .accessibilityValue(options.first { $0.id == selection }?.displayName ??
+                                    (selection == PronunciationVoice.highestQualityID ? "自动选择最高音质" : "跟随系统"))
                 Button {
                     playWord(locale: locale, selectedID: preference.wrappedValue)
                 } label: {
@@ -306,6 +310,7 @@ struct WordSheet: View {
 }
 
 struct PronunciationVoice: Identifiable, Sendable {
+    static let highestQualityID = "lexora.mode.highestQuality"
     let identifier: String
     let language: String
     let quality: AVSpeechSynthesisVoiceQuality
@@ -333,9 +338,19 @@ struct PronunciationVoice: Identifiable, Sendable {
                      selectedIdentifier: String? = nil) -> Self? {
         let eligible = voices.filter { $0.matches(language: language) }
         if let chosen = eligible.first(where: { $0.id == selectedIdentifier }) { return chosen }
+        if selectedIdentifier != highestQualityID, let systemVoice = eligible.first(where: { $0.id == preferredIdentifier }) {
+            return systemVoice
+        }
         guard let bestQuality = eligible.map(\.quality.rawValue).max() else { return nil }
         let best = eligible.filter { $0.quality.rawValue == bestQuality }
         return best.first { $0.id == preferredIdentifier } ?? best.min { $0.id < $1.id }
+    }
+}
+
+extension PronunciationVoice {
+    init(_ voice: AVSpeechSynthesisVoice) {
+        self.init(identifier: voice.identifier, language: voice.language, quality: voice.quality,
+                  traits: voice.voiceTraits, name: voice.name)
     }
 }
 
@@ -351,18 +366,22 @@ private actor WordPronunciation {
     func installedVoices(refresh: Bool) -> [PronunciationVoice] {
         if !refresh, let inventory { return inventory }
         let locales = ["en-GB", "en-US"]
-        var voices = AVSpeechSynthesisVoice.speechVoices()
+        var voices = AVSpeechSynthesisVoice.speechVoices().map(PronunciationVoice.init)
+        let defaultVoice = AVSpeechSynthesisVoice(language: nil).map(PronunciationVoice.init)
         systemPreferences.removeAll()
         for locale in locales {
-            if let voice = AVSpeechSynthesisVoice(language: locale) {
-                systemPreferences[locale] = voice.identifier
-                if !voices.contains(where: { $0.identifier == voice.identifier }) { voices.append(voice) }
+            let preferred: PronunciationVoice?
+            if let defaultVoice, defaultVoice.matches(language: locale) {
+                preferred = defaultVoice
+            } else {
+                preferred = AVSpeechSynthesisVoice(language: locale).map(PronunciationVoice.init)
+            }
+            if let preferred, preferred.matches(language: locale) {
+                systemPreferences[locale] = preferred.id
+                if !voices.contains(where: { $0.id == preferred.id }) { voices.append(preferred) }
             }
         }
-        let available = voices.filter { $0.language.lowercased().hasPrefix("en") }.map {
-            PronunciationVoice(identifier: $0.identifier, language: $0.language, quality: $0.quality,
-                               traits: $0.voiceTraits, name: $0.name)
-        }.filter { voice in locales.contains { voice.matches(language: $0) } }
+        let available = voices.filter { voice in locales.contains { voice.matches(language: $0) } }
         .sorted {
             if $0.quality != $1.quality { return $0.quality.rawValue > $1.quality.rawValue }
             return $0.name.localizedStandardCompare($1.name) == .orderedAscending

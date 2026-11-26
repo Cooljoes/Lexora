@@ -192,8 +192,9 @@ final class ReaderUITests: XCTestCase {
         attach("英美发音")
         let menu = app.buttons["选择美式声音"]
         menu.tap()
-        let automatic = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "自动选择最高音质")).firstMatch
-        XCTAssertTrue(automatic.waitForExistence(timeout: 8), app.debugDescription)
+        let system = app.buttons.matching(NSPredicate(format: "label == %@", "跟随系统")).firstMatch
+        XCTAssertTrue(system.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(app.buttons["自动选择最高音质"].exists)
         let installed = app.buttons.matching(NSPredicate(format: "label MATCHES %@", ".+ · (精品|增强|基础)")).firstMatch
         if installed.exists {
             let name = installed.label
@@ -205,7 +206,8 @@ final class ReaderUITests: XCTestCase {
             waitForExpectations(timeout: 8)
             menu.tap()
         }
-        automatic.tap()
+        system.tap()
+        XCTAssertEqual(menu.value as? String, "跟随系统")
         XCTAssertTrue(app.buttons["选择英式声音"].exists)
     }
     func testSystemCopyAndPaste() {
