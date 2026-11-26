@@ -32,6 +32,8 @@
 		F0C1B9856951AC522EC27D0C /* CC-BY-SA-4.0.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1CC2D4A8F7222333EAA27E54 /* CC-BY-SA-4.0.txt */; };
 		F17C4B8780F678E8682F58B4 /* LexoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28FFA82888B3E08BCF662888 /* LexoraApp.swift */; };
 		F1F4C95A67DE40ACD6FC9859 /* LibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A904795620F6E7DAEF0054 /* LibraryViews.swift */; };
+		B2A290BCF3C24708AB245110 /* KokoroEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A290BCF3C24708AB245111 /* KokoroEngine.swift */; };
+		B2A290BCF3C24708AB245112 /* KokoroVoicePack in Resources */ = {isa = PBXBuildFile; fileRef = B2A290BCF3C24708AB245113 /* KokoroVoicePack */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +102,8 @@
 		D39D1B79ED857F1CBC30F688 /* LexoraShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LexoraShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E332CAF109759722E7C265B8 /* Lexora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAC77DD52FD542EED85896C5 /* Dictionary.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = Dictionary.sqlite; sourceTree = "<group>"; };
+		B2A290BCF3C24708AB245111 /* KokoroEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KokoroEngine.swift; sourceTree = "<group>"; };
+		B2A290BCF3C24708AB245113 /* KokoroVoicePack */ = {isa = PBXFileReference; lastKnownFileType = folder; path = KokoroVoicePack; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +150,7 @@
 		4EC0809D025F237E47D3A799 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				B2A290BCF3C24708AB245111 /* KokoroEngine.swift */,
 				662BAB5AD04952B860AF310F /* Analysis.swift */,
 				0110A965B26BC534A7A13E4A /* Dictionary.swift */,
 				D12550FE2DF4854047F47F3F /* Library.swift */,
@@ -198,6 +203,7 @@
 			children = (
 				D5D2E3F96A81F3CB248EA609 /* App */,
 				4EC0809D025F237E47D3A799 /* Core */,
+				B2A290BCF3C24708AB245113 /* KokoroVoicePack */,
 				2388C9A0E181EB39F47EF689 /* Resources */,
 				2C5626A55044F45E8C459B8F /* Shared */,
 				1B519AF82E1DFC8626F539A9 /* ShareExtension */,
@@ -331,6 +337,8 @@
 			);
 			mainGroup = DF9B1A5BB7F357BA051634FC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -355,6 +363,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2A290BCF3C24708AB245112 /* KokoroVoicePack in Resources */,
 				CF6CE1430682CDD26E86ABBD /* Assets.xcassets in Resources */,
 				F0C1B9856951AC522EC27D0C /* CC-BY-SA-4.0.txt in Resources */,
 				BFC69B8226B94583A85BBF41 /* Pronunciation-Licenses.txt in Resources */,
@@ -396,6 +405,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2A290BCF3C24708AB245110 /* KokoroEngine.swift in Sources */,
 				34DB06ED0329B07539ED709A /* Analysis.swift in Sources */,
 				218DF58CEEEC548F655CBDE8 /* Design.swift in Sources */,
 				02C0B477FFFE6032C379DC14 /* DeskShell.swift in Sources */,
@@ -570,7 +580,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -593,7 +603,7 @@
 				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
 				LEXORA_BUNDLE_ID = studio.lexora.reader;
 				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -660,7 +670,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -677,7 +687,7 @@
 				LEXORA_APP_GROUP = "group.$(LEXORA_BUNDLE_ID)";
 				LEXORA_BUNDLE_ID = studio.lexora.reader;
 				LEXORA_CLOUD_CONTAINER = "iCloud.$(LEXORA_BUNDLE_ID)";
-				MARKETING_VERSION = 0.1.1;
+				MARKETING_VERSION = 0.2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -758,6 +768,8 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+
 	};
 	rootObject = 34F3293DEE75349C30E444FB /* Project object */;
 }

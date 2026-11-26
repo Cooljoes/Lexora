@@ -5,6 +5,23 @@ import AVFAudio
 @testable import Lexora
 
 final class ReadingTests: XCTestCase {
+    func testBundledKokoroRendersBritishAndAmericanSpeech() async throws {
+        for region in ["en-GB", "en-US"] {
+            let samples = try await KokoroEngine.shared.synthesize("hospital", language: region)
+            // A complete word should contain speech and end before the export's five-second padded window.
+            XCTAssertTrue((4_800..<120_000).contains(samples.count), region)
+            XCTAssertTrue(samples.allSatisfy(\.isFinite), region)
+            let meanSquare = samples.reduce(0.0) { $0 + Double($1 * $1) } / Double(samples.count)
+            XCTAssertGreaterThan(meanSquare, 0.00001, region)
+        }
+        do {
+            _ = try await KokoroEngine.shared.synthesize("📖", language: "en-US")
+            XCTFail("An unsupported symbol has no spoken-word form.")
+        } catch {
+            XCTAssertFalse(error.localizedDescription.isEmpty)
+        }
+    }
+
     func testEnglishVoicePreferenceRespectsAccentQualityAndExplicitChoice() {
         let basic = PronunciationVoice(identifier: "basic", language: "en-US", quality: .default, traits: [])
         let enhanced = PronunciationVoice(identifier: "enhanced", language: "en_US", quality: .enhanced, traits: [])
@@ -77,7 +94,22 @@ final class ReadingTests: XCTestCase {
             XCTAssertEqual(result.entry.edition, "en")
             XCTAssertEqual(result.entry.pos, pos)
             XCTAssertTrue(try XCTUnwrap(lookup.speechHint(for: primary, region: "uk")).contains(stressed))
+            XCTAssertEqual(lookup.speechHint(for: primary, region: "uk", useDisplayedIPA: true),
+                           lookup.speechHint(for: primary, region: "uk"))
         }
+    }
+    func testKokoroUsesSingleDisplayedRegionalPronunciation() throws {
+        let endless = try Lexicon.lookupWord(.standalone("endless"))
+        let entry = try XCTUnwrap(endless.senses.first?.entry)
+        XCTAssertEqual(endless.speechHint(for: entry, region: "uk", useDisplayedIPA: true), "ˈɛndlɪs")
+        XCTAssertEqual(endless.speechHint(for: entry, region: "us", useDisplayedIPA: true), "ˈɛndləs")
+        XCTAssertNil(endless.speechHint(for: entry, region: "uk"))
+
+        let read = try Lexicon.lookupWord(.standalone("read"))
+        XCTAssertNil(read.speechHint(for: nil, region: "uk", useDisplayedIPA: true))
+        XCTAssertNil(read.speechHint(for: nil, region: "us", useDisplayedIPA: true))
+        let past = try XCTUnwrap(read.senses.first { $0.entry.detail.ipa["uk"] == "/ɹɛd/" }?.entry)
+        XCTAssertEqual(read.speechHint(for: past, region: "uk", useDisplayedIPA: true), "ɹɛd")
     }
     func testRealTokenizerAndLemmaOffsets() throws {
         let text = "🌿 The birds were singing. A beautiful fern grew."

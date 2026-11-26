@@ -17,7 +17,7 @@ struct DeskShell: View {
     @State private var deskPath: [Reading] = []
     @State private var historyPath: [Reading] = []
     @State private var composer = false
-    @State private var about = false
+    @State private var settings = false
     @State private var failure: String?
     @State private var columns: NavigationSplitViewVisibility = .all
 
@@ -33,7 +33,7 @@ struct DeskShell: View {
                     }
                     .navigationTitle("Lexora")
                     .safeAreaInset(edge: .bottom) {
-                        Button { about = true } label: { Label("关于与数据来源", systemImage: "info.circle") }
+                        Button { settings = true } label: { Label("设置", systemImage: "gearshape") }
                             .padding().frame(maxWidth: .infinity, alignment: .leading)
                     }
                 } detail: { page(section) }
@@ -49,7 +49,7 @@ struct DeskShell: View {
         .sheet(isPresented: $composer) {
             Composer { raw in try open(raw, origin: "手动输入") }
         }
-        .sheet(isPresented: $about) { AboutView() }
+        .sheet(isPresented: $settings) { ReaderSettingsView() }
         .alert("操作未完成", isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } })) {
             Button("好") { failure = nil }
         } message: { Text(failure ?? "") }
@@ -70,7 +70,7 @@ struct DeskShell: View {
                     onHistory: {
                         historyPath.removeAll()
                         section = .history
-                    }, onAbout: { about = true }
+                    }, onSettings: { settings = true }
                 ).navigationDestination(for: Reading.self) { ReaderView(item: $0) }
             }
         case .words: NavigationStack { WordbookView() }

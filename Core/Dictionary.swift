@@ -63,10 +63,21 @@ struct WordLookup: Sendable {
         return differs ? value : nil
     }
 
-    func speechHint(for entry: DictionaryEntry, region: String) -> String? {
-        let source = englishSupplement(for: entry) ?? entry
-        guard let value = contrastingIPA(for: source, key: region),
-              value.first == "/", value.last == "/", value.count > 2 else { return nil }
+    func speechHint(for entry: DictionaryEntry?, region: String, useDisplayedIPA: Bool = false) -> String? {
+        let extra = entry.flatMap(englishSupplement)
+        let value: String?
+        if useDisplayedIPA {
+            if let regional = sourcedIPA(region, primary: entry, extra: extra) {
+                value = regional.value
+            } else if let variants = referenceIPA[region], variants.count == 1 {
+                value = variants[0]
+            } else {
+                return nil
+            }
+        } else {
+            value = (extra ?? entry).flatMap { contrastingIPA(for: $0, key: region) }
+        }
+        guard let value, value.first == "/", value.last == "/", value.count > 2 else { return nil }
         let phones = value.dropFirst().dropLast().replacingOccurrences(of: ".", with: "")
         // Optional segments and alternatives are useful to read, but aren't one spoken form.
         guard !phones.isEmpty, phones.unicodeScalars.allSatisfy({

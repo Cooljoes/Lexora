@@ -19,9 +19,10 @@ struct WordSheet: View {
     @State private var saveError: String?
     @AppStorage("lexora.voice.en-GB") private var britishVoiceID = ""
     @AppStorage("lexora.voice.en-US") private var americanVoiceID = ""
+    @AppStorage(SpeechMode.preferenceKey) private var speechMode: SpeechMode = .system
     @State private var installedVoices: [PronunciationVoice]?
     @State private var voiceRevision = 0
-    @State private var lastPlayback: (locale: String, voice: PronunciationVoice?)?
+    @State private var lastPlayback: (locale: String, result: PlaybackFeedback)?
     @State private var requestID: UUID?
     @State private var playback: Task<Void, Never>?
     @State private var preparingVoice: String?
@@ -143,11 +144,20 @@ struct WordSheet: View {
             loaded = true
         }
         .task(id: voiceRevision) {
+            guard speechMode == .system else { return }
             let voices = await WordPronunciation.shared.installedVoices(refresh: true)
             if !Task.isCancelled { installedVoices = voices }
         }
         .onReceive(NotificationCenter.default.publisher(for: AVSpeechSynthesizer.availableVoicesDidChangeNotification)) { _ in voiceRevision += 1 }
-        .onChange(of: scenePhase) { _, phase in if phase == .active { voiceRevision += 1 } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { voiceRevision += 1 }
+            if phase == .background { stopPlayback() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { notification in
+            if let type = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+               type == AVAudioSession.InterruptionType.began.rawValue { stopPlayback() }
+        }
+        .onChange(of: speechMode) { stopPlayback(); voiceRevision += 1 }
         .onChange(of: selected) { stopPlayback() }
         .onDisappear { stopPlayback() }
     }
@@ -177,11 +187,11 @@ struct WordSheet: View {
         let general = lookup.sourcedIPA("general", primary: primary, extra: extra)
         return VStack(alignment: .leading, spacing: 8) {
             SectionLine(title: "音标与发音")
-            if let general {
-                Text("未分地区  " + general.value).font(.subheadline).foregroundStyle(Ink.text)
+            if uk == nil, us == nil, lookup.referenceIPA.isEmpty, let general {
+                Text("音标  " + general.value).font(.subheadline).foregroundStyle(Ink.text)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("generalIPA")
-                Link(general.entry.sourceName + " · 未分地区 IPA", destination: general.entry.sourceURL)
+                Link(general.entry.sourceName, destination: general.entry.sourceURL)
                     .font(.caption).accessibilityIdentifier("generalIPASource")
             }
             regionalPronunciation("英式", locale: "en-GB", attested: uk,
@@ -231,48 +241,57 @@ struct WordSheet: View {
                     region
                 }
                 Spacer(minLength: 2)
-                Menu {
-                    Picker(label + "声音", selection: Binding(
-                        get: { selection },
-                        set: { id in
-                            preference.wrappedValue = id
-                            playWord(locale: locale, selectedID: id)
+                if speechMode == .system {
+                    Menu {
+                        Picker(label + "声音", selection: Binding(
+                            get: { selection },
+                            set: { id in
+                                preference.wrappedValue = id
+                                playWord(locale: locale, selectedID: id)
+                            }
+                        )) {
+                            Text("跟随系统").tag("")
+                            Text("自动选择最高音质").tag(PronunciationVoice.highestQualityID)
+                            ForEach(options) { voice in Text(voice.displayName).tag(voice.id) }
+                        }.pickerStyle(.inline)
+                        if installedVoices == nil {
+                            Text("正在查找设备语音…")
+                        } else if options.isEmpty {
+                            Text("可在设置中搜索“阅读与朗读”，从“声音”下载英语语音。")
                         }
-                    )) {
-                        Text("跟随系统").tag("")
-                        Text("自动选择最高音质").tag(PronunciationVoice.highestQualityID)
-                        ForEach(options) { voice in Text(voice.displayName).tag(voice.id) }
-                    }.pickerStyle(.inline)
-                    if installedVoices == nil {
-                        Text("正在查找设备语音…")
-                    } else if options.isEmpty {
-                        Text("可在设置中搜索“阅读与朗读”，从“声音”下载英语语音。")
+                    } label: {
+                        Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44)
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("选择" + label + "声音")
+                    .accessibilityValue(options.first { $0.id == selection }?.displayName ??
+                                        (selection == PronunciationVoice.highestQualityID ? "自动选择最高音质" : "跟随系统"))
                 }
-                .accessibilityLabel("选择" + label + "声音")
-                .accessibilityValue(options.first { $0.id == selection }?.displayName ??
-                                    (selection == PronunciationVoice.highestQualityID ? "自动选择最高音质" : "跟随系统"))
                 Button {
-                    playWord(locale: locale, selectedID: preference.wrappedValue)
+                    if preparingVoice == locale {
+                        stopPlayback()
+                    } else {
+                        playWord(locale: locale, selectedID: preference.wrappedValue)
+                    }
                 } label: {
                     Group {
                         if preparingVoice == locale { ProgressView().controlSize(.small) }
                         else { Image(systemName: "speaker.wave.2") }
                     }.frame(minWidth: 44, minHeight: 44)
-                }.accessibilityLabel("播放" + label + "发音")
+                }.accessibilityLabel((preparingVoice == locale ? "取消准备" : "播放") + label + "发音")
             }
             if let lastPlayback, lastPlayback.locale == locale {
-                if let voice = lastPlayback.voice {
+                switch lastPlayback.result {
+                case .system(let voice):
                     Text(voice.displayName).font(.caption).foregroundStyle(Ink.muted)
                     if voice.quality == .default && !options.contains(where: { $0.quality.rawValue > voice.quality.rawValue }) {
                         Text("可在设置中搜索“阅读与朗读”，从“声音”下载更高音质的英语语音。")
                             .font(.caption).foregroundStyle(Ink.muted)
                     }
-                } else {
-                    Text("此设备暂无可用的" + label + "英语语音。请在设置中搜索“阅读与朗读”，从“声音”下载。")
-                        .font(.caption).foregroundStyle(Ink.muted)
+                case .kokoro:
+                    Text("Kokoro · " + (locale == "en-GB" ? "Emma" : "Heart"))
+                        .font(.caption).foregroundStyle(Ink.muted).accessibilityIdentifier("playedKokoro-" + locale)
+                case .failure(let message):
+                    Text(message).font(.caption).foregroundStyle(.red).accessibilityIdentifier("playbackError")
                 }
             }
         }
@@ -283,14 +302,20 @@ struct WordSheet: View {
         let id = UUID()
         requestID = id
         let word = chosen?.entry.word ?? token.lemma
-        let hint = chosen.flatMap { lookup.speechHint(for: $0.entry, region: locale == "en-GB" ? "uk" : "us") }
+        let mode = speechMode
+        let hint = lookup.speechHint(for: chosen?.entry, region: locale == "en-GB" ? "uk" : "us", useDisplayedIPA: mode == .kokoro)
         lastPlayback = nil
         preparingVoice = locale
         playback = Task {
-            let voice = await WordPronunciation.shared.play(word, locale: locale, ipa: hint, selectedID: selectedID, request: id)
+            let result: PlaybackFeedback
+            do {
+                result = try await WordPronunciation.shared.play(word, locale: locale, ipa: hint, selectedID: selectedID, mode: mode, request: id)
+            } catch {
+                result = .failure("无法播放发音。" + error.localizedDescription)
+            }
             guard !Task.isCancelled, requestID == id else { return }
             preparingVoice = nil
-            lastPlayback = (locale, voice)
+            lastPlayback = (locale, result)
         }
     }
 
@@ -354,11 +379,18 @@ extension PronunciationVoice {
     }
 }
 
+private enum PlaybackFeedback: Sendable {
+    case system(PronunciationVoice)
+    case kokoro
+    case failure(String)
+}
+
 // The speech-asset service can block on a cold device. Resolve voices and play words
 // off the main actor; the request ID prevents a dismissed sheet from stopping a newer word.
 private actor WordPronunciation {
     static let shared = WordPronunciation()
     private var synthesizer: AVSpeechSynthesizer?
+    private var audioEngine: AVAudioEngine?
     private var inventory: [PronunciationVoice]?
     private var systemPreferences: [String: String] = [:]
     private var activeRequest: UUID?
@@ -390,17 +422,24 @@ private actor WordPronunciation {
         return available
     }
 
-    func play(_ word: String, locale: String, ipa: String?, selectedID: String, request: UUID) -> PronunciationVoice? {
-        guard !Task.isCancelled else { return nil }
-        synthesizer?.stopSpeaking(at: .immediate)
+    func play(_ word: String, locale: String, ipa: String?, selectedID: String, mode: SpeechMode, request: UUID) async throws -> PlaybackFeedback {
+        try Task.checkCancellation()
+        if let activeRequest { stop(request: activeRequest) }
         activeRequest = request
+        if mode == .kokoro {
+            let samples = try await KokoroEngine.shared.synthesize(word, language: locale, ipaHint: ipa)
+            try Task.checkCancellation()
+            guard activeRequest == request else { throw CancellationError() }
+            try playSamples(samples, request: request)
+            return .kokoro
+        }
         var available = installedVoices(refresh: false)
         // A voice can be removed in Settings between building the menu and playing.
         while let choice = PronunciationVoice.best(in: available, language: locale,
                                                     preferredIdentifier: systemPreferences[locale], selectedIdentifier: selectedID) {
-            guard !Task.isCancelled else { return nil }
+            try Task.checkCancellation()
             if let voice = AVSpeechSynthesisVoice(identifier: choice.id) {
-                guard !Task.isCancelled else { return nil }
+                try Task.checkCancellation()
                 let speech = synthesizer ?? AVSpeechSynthesizer()
                 synthesizer = speech
                 let utterance: AVSpeechUtterance
@@ -412,17 +451,54 @@ private actor WordPronunciation {
                 }
                 utterance.voice = voice
                 speech.speak(utterance)
-                return choice
+                return .system(choice)
             }
             available.removeAll { $0.id == choice.id }
             inventory = available
         }
-        return nil
+        return .failure("此设备暂无可用的" + (locale == "en-GB" ? "英式" : "美式") + "英语语音。请在系统设置中搜索“阅读与朗读”，从“声音”下载。")
+    }
+
+    private func playSamples(_ samples: [Float], request: UUID) throws {
+        guard !samples.isEmpty, let frames = AVAudioFrameCount(exactly: samples.count),
+              let format = AVAudioFormat(standardFormatWithSampleRate: 24_000, channels: 1),
+              let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames),
+              let channel = buffer.floatChannelData?[0] else {
+            throw NSError(domain: "Lexora.Audio", code: 1, userInfo: [NSLocalizedDescriptionKey: "无法读取语音包生成的音频。"])
+        }
+        buffer.frameLength = frames
+        samples.withUnsafeBufferPointer { source in
+            if let base = source.baseAddress { channel.update(from: base, count: source.count) }
+        }
+
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .spokenAudio, options: .duckOthers)
+        try session.setActive(true)
+        let engine = AVAudioEngine()
+        audioEngine = engine
+        let player = AVAudioPlayerNode()
+        engine.attach(player)
+        engine.connect(player, to: engine.mainMixerNode, format: format)
+        do {
+            try engine.start()
+        } catch {
+            stop(request: request)
+            throw error
+        }
+        player.scheduleBuffer(buffer, completionCallbackType: .dataPlayedBack) { _ in
+            Task { await self.stop(request: request) }
+        }
+        player.play()
     }
 
     func stop(request: UUID) {
         guard request == activeRequest else { return }
-        synthesizer?.stopSpeaking(at: .immediate)
         activeRequest = nil
+        synthesizer?.stopSpeaking(at: .immediate)
+        if let audioEngine {
+            audioEngine.stop()
+            self.audioEngine = nil
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
     }
 }

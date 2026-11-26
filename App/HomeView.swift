@@ -9,7 +9,7 @@ struct HomeView: View {
     let onCompose: () -> Void
     let onSelect: (Reading) -> Void
     let onHistory: () -> Void
-    let onAbout: () -> Void
+    let onSettings: () -> Void
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -64,7 +64,7 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { Brand() }.sharedBackgroundVisibility(.hidden)
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: onAbout) { Image(systemName: "info.circle") }.accessibilityLabel("关于与数据来源")
+                Button(action: onSettings) { Label("设置", systemImage: "gearshape") }
             }
         }
     }

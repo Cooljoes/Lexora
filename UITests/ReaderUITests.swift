@@ -150,18 +150,18 @@ final class ReaderUITests: XCTestCase {
         search.typeText("zzzxqv")
         XCTAssertTrue(app.staticTexts["未找到相关记录"].waitForExistence(timeout: 5), app.debugDescription)
     }
-    func testUnregionalizedIPAAndSenseSelection() {
+    func testRegionalIPAAndSenseSelection() {
         let app = launch()
         tapSection("生词本", app)
         let search = app.textFields["wordSearch"]
         search.tap()
         search.typeText("adagio")
         app.buttons["dictionaryLookup"].tap()
-        let ipa = app.staticTexts["generalIPA"]
-        XCTAssertTrue(ipa.waitForExistence(timeout: 8), app.debugDescription)
-        XCTAssertTrue(ipa.label.contains("/əˈdɑːd͡ʒiəʊ/"), ipa.label)
-        let source = app.descendants(matching: .any).matching(identifier: "generalIPASource").firstMatch
-        XCTAssertTrue(source.label.contains("English Wiktionary"), source.label)
+        let source = app.descendants(matching: .any).matching(identifier: "ipaSource-en-US").firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(source.label.contains("CMUdict"), source.label)
+        XCTAssertFalse(app.staticTexts["generalIPA"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["generalIPASource"].exists)
 
         let picker = app.buttons["sensePicker"]
         picker.tap()
@@ -173,6 +173,19 @@ final class ReaderUITests: XCTestCase {
         XCTAssertTrue(picker.waitForExistence(timeout: 5), app.debugDescription)
         picker.tap()
         XCTAssertTrue(app.buttons[newSelection].isSelected)
+    }
+    func testIPAWithoutRegionalEntryKeepsItsTranscriptionAndSource() {
+        let app = launch()
+        tapSection("生词本", app)
+        let search = app.textFields["wordSearch"]
+        search.tap()
+        search.typeText("preposition")
+        app.buttons["dictionaryLookup"].tap()
+        let ipa = app.staticTexts["generalIPA"]
+        XCTAssertTrue(ipa.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertEqual(ipa.label, "音标  /ˌpɹɛpəˈzɪʃən/")
+        let source = app.descendants(matching: .any).matching(identifier: "generalIPASource").firstMatch
+        XCTAssertEqual(source.label, "English Wiktionary")
     }
     func testPronunciationLookupOutsideTheDefinitionDictionary() {
         let app = launch()
@@ -210,6 +223,46 @@ final class ReaderUITests: XCTestCase {
         XCTAssertEqual(menu.value as? String, "跟随系统")
         XCTAssertTrue(app.buttons["选择英式声音"].exists)
     }
+    func testKokoroSettingsPersistAndPlayBothAccents() {
+        let app = launch()
+        tapSection("设置", app)
+        let ai = app.segmentedControls.buttons["AI 语音包"]
+        XCTAssertTrue(ai.waitForExistence(timeout: 8), app.debugDescription)
+        ai.tap()
+        app.buttons["完成"].tap()
+        app.terminate()
+        app.launch()
+        tapSection("设置", app)
+        XCTAssertTrue(ai.isSelected)
+        app.buttons["完成"].tap()
+
+        tapSection("生词本", app)
+        let search = app.textFields["wordSearch"]
+        search.tap()
+        search.typeText("daylight")
+        app.buttons["dictionaryLookup"].tap()
+        for (button, language) in [("播放英式发音", "en-GB"), ("播放美式发音", "en-US")] {
+            let play = app.buttons[button]
+            XCTAssertTrue(play.waitForExistence(timeout: 8), app.debugDescription)
+            play.tap()
+            let rendered = app.staticTexts["playedKokoro-" + language]
+            XCTAssertTrue(rendered.waitForExistence(timeout: 180), app.debugDescription)
+        }
+        XCTAssertFalse(app.buttons["选择美式声音"].exists)
+        app.buttons["完成"].tap()
+        tapSection("书桌", app)
+        tapSection("设置", app)
+        app.segmentedControls.buttons["系统语音"].tap()
+        app.buttons["完成"].tap()
+        tapSection("生词本", app)
+        if !app.buttons["dictionaryLookup"].exists {
+            search.tap()
+            search.typeText("daylight")
+        }
+        app.buttons["dictionaryLookup"].tap()
+        XCTAssertTrue(app.buttons["选择美式声音"].waitForExistence(timeout: 8), app.debugDescription)
+    }
+
     func testSystemCopyAndPaste() {
         let app = launch()
         app.buttons["featuredReading"].tap()

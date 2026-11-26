@@ -93,64 +93,109 @@ struct WordbookView: View {
     }
 }
 
-struct AboutView: View {
+enum SpeechMode: String {
+    case system, kokoro
+    static let preferenceKey = "lexora.voice.mode"
+}
+
+struct ReaderSettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(SpeechMode.preferenceKey) private var speechMode: SpeechMode = .system
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("发音方式", selection: $speechMode) {
+                        Text("系统语音").tag(SpeechMode.system)
+                        Text("AI 语音包").tag(SpeechMode.kokoro)
+                    }.pickerStyle(.segmented)
+                } header: {
+                    Text("单词发音")
+                } footer: {
+                    Text(speechMode == .system
+                         ? "使用设备上的英语声音。可在词条中分别选择英式和美式声音。"
+                         : "Kokoro-82M 随应用提供，在设备上离线合成英式和美式发音。")
+                }
+                Section {
+                    NavigationLink("关于与数据来源") { AboutView() }
+                }
+            }
+            .navigationTitle("设置")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
+        }
+    }
+}
+
+struct AboutView: View {
     @State private var account = "正在检查 iCloud 账户…"
     @State private var license: License?
     private enum License: String, Identifiable {
         case wiktionary = "CC-BY-SA-4.0"
         case pronunciation = "Pronunciation-Licenses"
+        case kokoro = "Apache-2.0"
         var id: Self { self }
-        var title: String { self == .wiktionary ? "CC BY-SA 4.0" : "发音词典许可" }
+        var title: String {
+            switch self {
+            case .wiktionary: "CC BY-SA 4.0"
+            case .pronunciation: "发音词典许可"
+            case .kokoro: "Kokoro 语音包许可与来源"
+            }
+        }
     }
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Brand()
-                    if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
-                       let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
-                        Text("英语精读 · 版本 \(version)（构建 \(build)）")
-                            .font(.subheadline).foregroundStyle(Ink.muted)
-                    }
-                }
-                Section("离线词典") {
-                    Text("内置 30,798 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
-                    Link("Kaikki.org 词典数据", destination: URL(string: "https://kaikki.org/dictionary/rawdata.html")!)
-                    Text("Lexora 对数据作了筛选、整理与索引。地区音标只采用明确标注的记录；词根词缀仅展示来源已有的分析。")
-                    Button("查看维基词典许可") { license = .wiktionary }
-                    Text("英式词头读音补充自 Britfone，美式词头读音补充自 CMUdict。Lexora 将 CMUdict 的音素和重音标记转写为宽式 IPA。两部发音词典均按拼写列出读音。")
-                    Button("查看发音词典许可与来源") { license = .pronunciation }
-                }
-                Section("精读与翻译") {
-                    Text("NaturalLanguage 分析词形和词性。系统缺少语言资源时，使用词典收录的词形。重点词按实词、长度和数量筛选。候选释义结合词性及原句与词典释义、例句的用词匹配排序。")
-                    Text("全文翻译由设备上的 Apple 翻译完成。首次使用可能需要下载英语或简体中文语言包。音频使用设备已安装的系统语音。")
-                }
-                Section("资料库与隐私") {
-                    if Library.cloudIdentifier != nil {
-                        Label(account, systemImage: "icloud")
-                        Text("阅读原文、译文、生词和例句通过你自己的 iCloud 私有数据库同步。")
-                    } else {
-                        Label("本机资料库", systemImage: "internaldrive")
-                        Text("阅读原文、译文、生词和例句保存在当前设备上。")
-                    }
-                    Text("剪贴板仅在你点按粘贴时读取。应用不含广告、统计 SDK 或自建服务器。")
-                }
-                Section("经典选读") {
-                    Link("达尔文《物种起源》1859 年初版，第 490 页", destination: Featured.source)
-                    Text("封面植物图为专为 Lexora 生成的装饰插图。").font(.footnote)
-                }
-            }.navigationTitle("关于 Lexora").navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } } }
-            .sheet(item: $license) { selected in
-                NavigationStack {
-                    ScrollView {
-                        Text(licenseText(for: selected)).font(.footnote).textSelection(.enabled).padding()
-                    }.navigationTitle(selected.title).navigationBarTitleDisplayMode(.inline)
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { license = nil } } }
+        List {
+            Section {
+                Brand()
+                if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+                   let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+                    Text("英语精读 · 版本 \(version)（构建 \(build)）")
+                        .font(.subheadline).foregroundStyle(Ink.muted)
                 }
             }
-        }.task {
+            Section("离线词典") {
+                Text("内置 30,798 个英文词头。英、中维基词典贡献者提供释义、音标和词源，Kaikki.org 使用 Wiktextract 提取。词条保留原文及来源链接。")
+                Link("Kaikki.org 词典数据", destination: URL(string: "https://kaikki.org/dictionary/rawdata.html")!)
+                Text("Lexora 对数据作了筛选、整理与索引。地区音标只采用明确标注的记录；词根词缀仅展示来源已有的分析。")
+                Button("查看维基词典许可") { license = .wiktionary }
+                Text("英式词头读音补充自 Britfone，美式词头读音补充自 CMUdict。Lexora 将 CMUdict 的音素和重音标记转写为宽式 IPA。两部发音词典均按拼写列出读音。")
+                Button("查看发音词典许可与来源") { license = .pronunciation }
+            }
+            Section("精读与翻译") {
+                Text("NaturalLanguage 分析词形和词性。系统缺少语言资源时，使用词典收录的词形。重点词按实词、长度和数量筛选。候选释义结合词性及原句与词典释义、例句的用词匹配排序。")
+                Text("全文翻译由设备上的 Apple 翻译完成。首次使用可能需要下载英语或简体中文语言包。")
+            }
+            Section("AI 语音包") {
+                Text("Kokoro-82M 通过 Core ML 在设备上运行。英式发音使用 Emma，美式发音使用 Heart。")
+                Link("Kokoro-82M 原始模型", destination: URL(string: "https://huggingface.co/hexgrad/Kokoro-82M")!)
+                Link("Core ML 量化模型", destination: URL(string: "https://huggingface.co/aufklarer/Kokoro-82M-CoreML-INT8")!)
+                Button("查看语音包许可与来源") { license = .kokoro }
+            }
+            Section("资料库与隐私") {
+                if Library.cloudIdentifier != nil {
+                    Label(account, systemImage: "icloud")
+                    Text("阅读原文、译文、生词和例句通过你自己的 iCloud 私有数据库同步。")
+                } else {
+                    Label("本机资料库", systemImage: "internaldrive")
+                    Text("阅读原文、译文、生词和例句保存在当前设备上。")
+                }
+                Text("剪贴板仅在你点按粘贴时读取。应用不含广告、统计 SDK 或自建服务器。")
+            }
+            Section("经典选读") {
+                Link("达尔文《物种起源》1859 年初版，第 490 页", destination: Featured.source)
+                Text("封面植物图为专为 Lexora 生成的装饰插图。").font(.footnote)
+            }
+        }.navigationTitle("关于 Lexora").navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $license) { selected in
+            NavigationStack {
+                ScrollView {
+                    Text(licenseText(for: selected)).font(.footnote).textSelection(.enabled).padding()
+                }.navigationTitle(selected.title).navigationBarTitleDisplayMode(.inline)
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { license = nil } } }
+            }
+        }
+        .task {
             guard let name = Library.cloudIdentifier else { return }
             do {
                 switch try await CKContainer(identifier: name).accountStatus() {
@@ -163,6 +208,13 @@ struct AboutView: View {
         }
     }
     private func licenseText(for license: License) -> String {
+        if license == .kokoro {
+            let documents = ["SOURCES", license.rawValue].compactMap { name in
+                Bundle.main.url(forResource: name, withExtension: "txt", subdirectory: "KokoroVoicePack")
+                    .flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+            }
+            return documents.isEmpty ? "无法读取随包许可文件。" : documents.joined(separator: "\n\n")
+        }
         guard let url = Bundle.main.url(forResource: license.rawValue, withExtension: "txt"),
               let text = try? String(contentsOf: url, encoding: .utf8) else { return "无法读取随包许可文件。" }
         return text

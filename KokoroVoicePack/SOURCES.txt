@@ -1,0 +1,22 @@
+Kokoro-82M · English speech synthesis assets
+
+Original weights and English voices: hexgrad/Kokoro-82M, Apache License 2.0.
+https://huggingface.co/hexgrad/Kokoro-82M
+
+Core ML conversion, INT8 weights, G2P encoder and decoder, vocabularies,
+and the af_heart (US) and bf_emma (GB) voice vectors:
+https://huggingface.co/aufklarer/Kokoro-82M-CoreML-INT8/tree/4ef656f55554ceb242ed11febbdbbffd60dd5938
+Selected files are unmodified from this revision. The model synthesizes mono
+PCM at 24,000 Hz. Core ML inference runs locally on the Apple device.
+
+Misaki English phoneme dictionaries: hexgrad and contributors, Apache License 2.0.
+https://github.com/hexgrad/misaki/tree/fba1236595f2d2bf21d414ba6e57d25256afada3/misaki/data
+Lexora converted the US and GB gold and silver dictionaries into lexicon.sqlite
+for on-demand lookup. Lookup keys are case-folded, gold entries take priority
+over silver, and the default pronunciation is stored for entries with variants.
+These synthesis tokens are separate from the IPA displayed by the dictionary.
+
+Core ML input and output conventions are documented in the upstream implementation:
+https://github.com/soniqo/speech-swift/tree/8effd8f8cbcb6aa1b9355cc6120c2290f05eafd7/Sources/KokoroTTS
+
+Full license: Apache-2.0.txt
